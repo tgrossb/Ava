@@ -1,0 +1,285 @@
+#!/bin/bash
+set -f
+
+# Config and default config file locations
+config_file='/etc/ava.cfg'
+default_config_file='/etc/ava.cfg.defaults'
+
+# Logging options
+PROJECT_LOGGING='project'
+INDIVIDUAL_LOGGING='individual'
+BOTH_LOGGING='both'
+NONE_LOGGING='none'
+
+config_read_file() {
+	(grep -E "^${2}=" -m 1 "${1}" 2>/dev/null || echo "VAR=__UNDEFINED__") | head -n 1 | cut -d '=' -f 2-;
+}
+
+config_get() {
+	val="$(config_read_file $config_file "${1}")";
+	if [ "${val}" = "__UNDEFINED__" ]; then
+		val="$(config_read_file $default_config_file "${1}")";
+	fi
+	printf -- "%s" "${val}";
+}
+
+print_default_config() {
+	head=""
+	if [ "$1" == "$default_config_file" ]; then
+		echo "## This is the default configuration file for the Ava Compiling and Executing tool." > $1
+		echo "## Changes to this file will be overwriten on each run. Perminant configurations" >> $1
+		echo "## should be recorded in $config_file and will override these parameters." >> $1
+	else
+		echo "## This the user configuration file for the Ava Compiling and Executing tool." > $1
+		echo "## Parameters in this file change the way outputs are displayed, and these" >> $1
+		echo "## values will override those defined in the $default_config_file file." >> $1
+		echo "##" >> $1
+		echo "## Default values are defined in $default_config_file and are fallen back" >> $1
+		echo "## upon if a parameter is not defined here." >> $1
+		echo "## Colors should be defined in the bash color syntax (https://misc.flogisoft.com/bash/tip_colors_and_formatting)" >> $1
+		head="#"
+	fi
+	echo "" >> $1
+	echo "# Color of the header and footer text" >> $1
+	echo "# This is used when the tool starts and finishes" >> $1
+	echo "${head}header_footer_color=\e[95m" >> $1
+	echo "" >> $1
+	echo "# Color of the executed commands" >> $1
+	echo "# This is used to reflect the commands the tool runs" >> $1
+	echo "${head}command_color=\e[94m" >> $1
+	echo "" >> $1
+	echo "# Color of the outputs" >> $1
+	echo "# This is the color used when a program prints" >> $1
+	echo "${head}output_color=\e[37m" >> $1
+	echo "" >> $1
+	echo "# Color of the warning outputs" >> $1
+	echo "${head}warning_color=\e[1m\e[93m" >> $1
+	echo "" >> $1
+	echo "# Color of the error outputs" >> $1
+	echo "${head}error_color=\e[1m\e[91m" >> $1
+	echo "" >> $1
+	echo "# Color of affirmation outputs" >> $1
+	echo "${head}affirmation_color=\e[92m" >> $1
+	echo "" >> $1
+	echo "# Color of line header" >> $1
+	echo "${head}line_header_color=\e[1m\e[97m" >> $1
+	echo "" >> $1
+	echo "# Color of standard outputs" >> $1
+	echo "${head}standard_output_color=\e[97m" >> $1
+	echo "" >> $1
+	echo "# Project and individual log file names" >> $1
+	echo "# Log files store the stdout and sterr of each run" >> $1
+	echo "${head}project_log_name=project_log" >> $1
+	echo "${head}individual_log_name=log" >> $1
+	echo "" >> $1
+	echo "# Store project logs and/or individual logs" >> $1
+	echo "# Project logs store logs from all runs or a project in the project home" >> $1
+	echo "# Individual logs store the logs from each run in the directory it was run from" >> $1
+	echo "# Options are ${NONE_LOGGING}, ${PROJECT_LOGGING}, ${INDIVIDUAL_LOGGING}, or ${BOTH_LOGGING}" >> $1
+	echo "${head}logging_type=${PROJECT_LOGGING}" >> $1
+}
+
+print_proj_config_file() {
+	echo "# This is the per project configuration file. All locations can be" > $1
+	echo "# relative to the project home or absolute, and the @ symbol represents" >> $1
+	echo "# the project home and can be used after the home variable's definition." >> $1
+	echo "# Comments are allowed, but empty lines are only allowed in the compile list." >> $1
+	echo "# Project home variable" >> $1
+	echo "." >> $1
+	echo "# Library location or classpath, can be left empty for none" >> $1
+	echo "" >> $1
+	echo "# Destination for compiled files" >> $1
+	echo "@/bin" >> $1
+	echo "# Main class to run" >> $1
+	echo "" >> $1
+	echo "# Classes to be compiled" >> $1
+	echo "" >> $1
+}
+
+resolve_rel_path() {
+	cd $2
+	cd $1
+	echo $PWD
+}
+
+get_parent() {
+	echo $(dirname $1)
+}
+
+get_file() {
+	echo "${1##*/}"
+}
+
+check_config_file() {
+	# If the default config file doesn't exist, make it
+	if [ ! -f $default_config_file ]; then
+		touch $default_config_file
+		echo "Restored default configuration file at $default_config_file"
+	fi
+
+	# Write the default config to the default config file
+	$(print_default_config $default_config_file)
+
+	# If the user config file doesn't exist, make it and write the default to it
+	if [ ! -f $config_file ]; then
+		touch $config_file
+		$(print_default_config $config_file)
+		echo "Restored user configuration file at $config_file"
+	fi
+}
+
+## Find the next undefined tmp file
+find_tmp_file() {
+	local tmp_out_loc=$PWD/$1
+	# If a file with the tmp output file is already defined find a new one
+	local count=0
+	while [ -f tmp_out_loc ]; do
+		count=$(expr $count + 1)
+		tmp_out_loc=$PWD/$(expr $1 + $count)
+	done
+	echo $tmp_out_loc
+}
+
+## Find the nearest project config file in the parent directory
+find_proj_config_file() {
+	proj_config_file_name=.ava_config
+	proj_config_location=$PWD
+	while [ ! -f $proj_config_location/$proj_config_file_name ]; do
+#		parent="$(dirname "$proj_config_location")"
+		parent="$(get_parent $proj_config_location)"
+		if [ $parent -ef / ]; then
+			# If we have made it to / we have gone too far
+			echo -e "${line_header_color}ava: ${error_color}Configuration file not found in parent directory"
+			exit
+		else
+			proj_config_location=$parent
+		fi
+	done
+	proj_config_location=$proj_config_location/$proj_config_file_name
+	echo -e "${line_header_color}ava: ${std_out_color}Found project configuration file at $proj_config_location"
+}
+
+check_config_file
+## Set the color variables, and add a normalizer before each
+	n='\e[21m'
+	header_footer_color=${n}$(config_get header_footer_color)
+	command_color=${n}$(config_get command_color)
+	output_color=${n}$(config_get output_color)
+	warning_color=${n}$(config_get warning_color)
+	error_color=${n}$(config_get error_color)
+	affirmation_color=${n}$(config_get affirmation_color)
+	line_header_color=${n}$(config_get line_header_color)
+	std_out_color=${n}$(config_get standard_output_color)
+
+## Set the logging variables
+	project_log_name=$(config_get project_log_name)
+	individual_log_name=$(config_get individual_log_name)
+	logging_type=$(config_get logging_type)
+
+## Print the header information and affirm the global config file locations
+	echo -e "${header_footer_color}Welcome to the Ava Compiling and Executing tool for Java - written by Theo Grossberndt"
+	echo -e "${line_header_color}ava: ${affirmation_color}Using user configuration file at $config_file and default configuration file at $default_config_file"
+
+tmp_output_file=$(find_tmp_file out)
+find_proj_config_file
+
+## Read the configuration file
+	proj_parent=$(get_parent $proj_config_location)
+	project_home="."
+	cp="."
+	dest="."
+	run="."
+	compile=""
+
+	count=0
+	while read -r line; do
+		if [[ $line = \#* ]]; then
+			continue
+		fi
+		count=$(expr $count + 1)
+		# First line is the project home
+		if [ $count -eq 1 ]; then
+			project_home=$(resolve_rel_path $line $proj_parent)
+			echo -e "${line_header_color}ava: ${std_out_color}Recognized project home as $project_home"
+			# Warn if the config is not in the home
+			if [ ! $project_home -ef $(dirname $proj_config_location) ]; then
+				echo -e "${line_header_color}ava: ${warning_color}Warning: configuration file ($proj_config_location) not in project home ($project_home)"
+			fi
+		# Second line is the classpath
+		elif [ $count -eq 2 ]; then
+			if [[ ! -z $line ]]; then
+				cp="${line/#\@/$project_home}"
+				cp=$(resolve_rel_path $(get_parent $cp) $proj_parent)/$(get_file $cp)
+			else
+				cp=$project_home
+			fi
+			echo -e "${line_header_color}ava: ${std_out_color}Recognized classpath variable as $cp"
+		# Third line is the compiled destination
+		elif [ $count -eq 3 ]; then
+			dest="${line/#\@/$project_home}"
+			dest=$(resolve_rel_path $dest $proj_parent)
+			echo -e "${line_header_color}ava: ${std_out_color}Recognized class file destination as $dest"
+		# Fourth line is the main class
+		elif [ $count -eq 4 ]; then
+			run=$line
+			echo -e "${line_header_color}ava: ${std_out_color}Recognized main runnable class as $run"
+		# All other lines are compiled
+		else
+			comp_path="${line/#\@/$project_home}"
+			comp_path=$(resolve_rel_path $(get_parent $comp_path) $proj_parent)/$(get_file $comp_path)
+			compile="$compile $comp_path"
+			echo -e "${line_header_color}ava: ${std_out_color}Added $comp_path to compile list"
+		fi
+	done < $proj_config_location
+
+compile=${compile:1}
+javac -cp $cp:$dest -d $dest $compile 2> $tmp_output_file
+compile_print=${compile//$project_home\//}
+cp_print=${cp//$project_home\//}
+dest_print=${dest//$project_home\//}
+echo -e "${line_header_color}ava: ${command_color}javac -cp $cp_print:$dest_print -d $dest_print $compile_print"
+if [ -s $tmp_output_file ]; then
+	echo -e "${line_header_color}ava: ${error_color}Error compiling $compile_print:"
+	while IFS= read -r outLine; do
+		echo -e "     ${std_out_color}$outLine"
+	done < $tmp_output_file
+	rm $tmp_output_file
+	exit
+else
+	echo -e "${line_header_color}ava: ${affirmation_color}Compiled $compile_print without errors"
+	rm $tmp_output_file
+fi
+
+echo -e "${line_header_color}ava: ${command_color}java -cp $cp_print:$dest_print $run${output_color}"
+
+# Create a project log if it doesn't exits and the logging includes it
+project_log=$project_home/$project_log_name
+if [ ! -f $project_log ]; then
+	if [ "$logging_type" == "$PROJECT_LOGGING" ] || [ "$logging_type" == "$BOTH_LOGGING" ]; then
+		touch $project_log
+	fi
+fi
+
+# Create the unique individual log and add the header
+individual_log=$(find_tmp_file $individual_log_name)
+touch $individual_log
+rundate=`date`
+echo "========== $rundate ===== java -cp $cp:$dest $run ==========" > $individual_log
+
+java -cp $cp:$dest $run |& tee -a $individual_log
+
+# If it is project or both logging, create add to the project log
+if [ "$logging_type" == "$PROJECT_LOGGING" ] || [ "$logging_type" == "$BOTH_LOGGING" ]; then
+	dummy=$(find_tmp_file dummy)
+	echo "" >> $individual_log
+	echo "" >> $individual_log
+	cat $individual_log $project_log > $dummy
+	mv $dummy $project_log
+fi
+
+# If it is project or none logging, remove the individual log
+if [ "$logging_type" == "$PROJECT_LOGGING" ] || [ "$logging_type" == "$NONE_LOGGING" ]; then
+	rm $individual_log
+fi
+
+echo -e "${header_footer_color}Thank you for using the Ava compiling and executing tool for Java :)"

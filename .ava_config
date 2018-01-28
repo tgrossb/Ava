@@ -1,0 +1,15 @@
+# This is an example ava configuration file
+# Project home, refered to as '@' after this point
+.
+# External libraries, can be left blank
+
+# Compiled file destination
+@/bin
+# The runnable file
+familytree.App
+# Lines after this point indicate files to be compiled
+# Source files can be in any order, despite dependancies
+@/src/test/Standards.java
+@/src/test/person/Contact.java
+@/src/test/person/Identity.java
+@/src/test/person/FamilyMember.java

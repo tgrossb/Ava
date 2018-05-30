@@ -1,0 +1,359 @@
+#!/bin/bash
+set -f
+
+# Config and default config file locations
+config_file='/etc/ava.cfg'
+default_config_file='/etc/ava.cfg.defaults'
+proj_config_file_name='ava_config'
+home_sym='@'
+
+# Logging options
+PROJECT_LOGGING='project'
+INDIVIDUAL_LOGGING='individual'
+BOTH_LOGGING='both'
+NONE_LOGGING='none'
+
+########## Handle config variables ################################################
+	# Echos a return
+	function config_read_file {
+		(grep -E "^${2}=" -m 1 "${1}" 2>/dev/null || echo "VAR=__UNDEFINED__") | head -n 1 | cut -d '=' -f 2-;
+	}
+
+	# Echos the value of a config variable
+	# First parameter is the name of the variable to get
+	function config_get {
+		val="$(config_read_file $config_file "${1}")";
+		if [ "${val}" = "__UNDEFINED__" ]; then
+			val="$(config_read_file $default_config_file "${1}")";
+		fi
+		printf -- "%s" "${val}";
+	}
+###################################################################################
+
+########## Write to config files ##################################################
+	# Prints the standard config settings to default or user config
+	# First parameter is the path to the file to print to
+	function print_standard_config {
+		head=""
+		if [ "$1" == "$default_config_file" ]; then
+			printf "## This is the default configuration file for the Ava Compiling and Executing tool.\n## Changes to this file will be overwriten " > $1
+			printf "on each run. Perminant configurations\n## should be recorded in $config_file and will override these parameters.\n" >> $1
+		else
+			printf "## This is the user configuration file for the Ava Compiling and Executing tool.\n## Parameters in this file change the " > $1
+			printf "way outputs are displayed, and these\n## values will override those defined in the default configuration file.\n##\n## " >> $1
+			printf "Default values are defined at $defailt_config_file and are fallen back\n## upon if a  parameter is not defined here.\n## " >> $1
+			printf "Colors should be defined in the bash color syntax (https://misc.flogisoft.com/bash/tip_colors_and_formatting)\n" >> $1
+			head="#"
+		fi
+		printf "\n# Color of the header and footer text\n# This is used when the tool starts and finishes\n${head}header_footer_color=" >> $1
+		printf "\e[95m\n# Color of the executed commands\n# This is used to reflect the commands the tool runs\n${head}command_color=\e" >> $1
+		printf "[94m\n\n# Color of the outputs\n# This is the color used when a program prints\n${head}output_color=\e[37m\n\n# Color of" >> $1
+		printf " the warning outputs\n${head}warning_color=\e[1m\e[93m\n\n# Color of the error outputs\n${head}error_color=\e[1m\e[91m\n" >> $1
+		printf "\n# Color of affirmation outputs\n${head}affirmation_color=\e[92m\n\n# Color of line header\n${head}line_header_color=\e[1m" >> $1
+		printf "\e[97m\n\n# Color of standard outputs\n${head}standard_output_color=\e[97m\n\n# Project and individual log file names\n# Log" >> $1
+		printf " files store the stdout and sterr of each run\n${head}project_log_name=project_log\n${head}individual_log_name=log\n\n# Store" >> $1
+		printf " project logs and/or individual logs\n# Project logs store logs from all runs or a project in the project home\n# Individual " >> $1
+		printf "logs store the logs from each run in the directory it was run from\n# Options are ${NONE_LOGGING}, ${PROJECT_LOGGING}, " >> $1
+		printf "${INDIVIDUAL_LOGGING}, or ${BOTH_LOGGING}\n${head}logging_type=${PROJECT_LOGGING}" >> $1
+	}
+
+	# Prints the project config to a file
+	# First parameter is the path to the file to print to
+	function print_proj_config {
+		printf "## This is the per project configuration file. All locations can be\n## relative to the project home or absolute, and the @ " > $1
+		printf "symbol represents\n## the project home and can be used after the home variable's definition.\n## Comments are allowed, but " >> $1
+		printf "empty lines are only allowed in the compile list.\n# Project home variable\n.\n# Library location or classpath, can be left " >> $1
+		printf "empty for none\n\n# Destination for compiled files\n@/bin\n# Main class to run\n \n# Classes to be compiled\n " >> $1
+	}
+###################################################################################
+
+########## Accessory methods ######################################################
+	# Echos an absolute path from a relative path
+	# First parameter is where is is relative from
+	# Second parameter is the relative path
+	function rel_to_abs {
+		cd $1
+		if [ ! -d $2 ]; then
+			echo "$2"
+		fi
+		cd $2
+		echo $PWD
+	}
+
+	# Echos the parent to a file or directory
+	# First parameter is the path
+	function parent_of {
+		echo $(dirname $1)
+	}
+
+	function get_file {
+		echo "${1##*/}"
+	}
+
+	function proj_rel_to_rel {
+		local line=$1
+		local proj_home=$2
+		local rel="${line/#$home_sym/$proj_home}"
+		echo "$rel"
+	}
+
+	# Make sure the config files exist and rewrite the default
+	function check_config_file {
+		# If the default config file doesn't exist, make it
+		if [ ! -f $default_config_file ]; then
+			touch $default_config_file
+			echo "Restored default configuration file at $default_config_file"
+		fi
+
+		# Write the default config to the default config file
+		print_standard_config $default_config_file
+
+		# If the user config file doesn't exist, make it and write the default to it
+		if [ ! -f $config_file ]; then
+			touch $config_file
+			print_standard_config $config_file
+			echo "Restored user configuration file at $config_file"
+		fi
+	}
+###################################################################################
+
+########## File finder methods ####################################################
+	## Find the next undefined tmp file
+	function find_tmp_file {
+		local tmp_out_loc=$PWD/$1
+		# If a file with the tmp output file is already defined find a new one
+		local count=0
+		while [ -f tmp_out_loc ]; do
+			count=$(expr $count + 1)
+			tmp_out_loc=$PWD/$(expr $1 + $count)
+		done
+		echo $tmp_out_loc
+	}
+
+	## Find the nearest project config file in the parent directory
+	function find_proj_config_file {
+		proj_config_location=$PWD
+		while [ ! -f $proj_config_location/$proj_config_file_name ]; do
+			parent="$(parent_of $proj_config_location)"
+			if [ $parent -ef / ]; then
+				# If we have made it to / we have gone too far
+				echo -e "${line_header_color}ava: ${error_color}Configuration file not found in parent directory"
+				exit
+			else
+				proj_config_location=$parent
+			fi
+		done
+		proj_config_location=$proj_config_location/$proj_config_file_name
+		echo -e "${line_header_color}ava: ${std_out_color}Found project configuration file at $proj_config_location"
+	}
+##########################################################################################
+
+function basic_start {
+	## Make sure that the config files are good
+		check_config_file
+
+	## Set the color variables, and add a normalizer before each
+		n='\e[21m'
+		header_footer_color=${n}$(config_get header_footer_color)
+		command_color=${n}$(config_get command_color)
+		output_color=${n}$(config_get output_color)
+		warning_color=${n}$(config_get warning_color)
+		error_color=${n}$(config_get error_color)
+		affirmation_color=${n}$(config_get affirmation_color)
+		line_header_color=${n}$(config_get line_header_color)
+		std_out_color=${n}$(config_get standard_output_color)
+
+	## Set the logging variables
+		project_log_name=$(config_get project_log_name)
+		individual_log_name=$(config_get individual_log_name)
+		logging_type=$(config_get logging_type)
+
+	## Print the header information and affirm the global config file locations
+		echo -e "${header_footer_color}Welcome to the Ava Compiling and Executing tool for Java - written by Theo Grossberndty"
+		echo -e "${line_header_color}ava: ${affirmation_color}Using user configuration file at $config_file and default configuration file at $default_config_file"
+}
+
+# Handles the first line, which is the project home
+# Creates a global variable project_home with this value
+# First parameter is the project config location
+# Second parameter is the line
+function parse_home {
+	local proj_config_loc=$1
+	local proj_config_parent=$(parent_of $proj_config_loc)
+	local line=$2
+	## Check if the line is not a path
+	#### DO THAT HERE
+	project_home=$(rel_to_abs $proj_config_parent $line)
+	echo -e "${line_header_color}ava: ${std_out_color}Recognized project home as $project_home"
+	## Warn if the config is not in the home
+	if [ ! $home -ef $proj_config_parent ]; then
+		echo -e "${line_header_color}ava: {$warning_color}Warning: configuration file ($proj_config_loc) not in project home ($project_home)"
+	fi
+}
+
+# Handles the second line, which is the classpath
+# First parameter is the project config location
+# Second parameter is the project home
+# Third parameter is the line
+function parse_classpath {
+	local proj_parent=$(parent_of $1)
+	local proj_home=$2
+	local line=$3
+	classpath="$proj_home"
+	if [[ ! -z $line ]]; then
+		classpath=$(proj_rel_to_rel $line $proj_home)
+		# Resolve the path part
+		local file=$(get_file $classpath)
+		local cp_parent=$(parent_of $classpath)
+		local abs=$(rel_to_abs $proj_parent $cp_parent)
+		classpath="$abs/$file"
+	fi
+	echo -e "${line_header_color}ava: ${std_out_color}Recognized classpath variable as $classpath"
+}
+
+# Handles the third line, which is the compiled destination
+# First parameter is the project config location
+# Second parameter is the project home
+# Third parameter is the line
+function parse_destination {
+	local proj_parent=$(parent_of $1)
+	local proj_home=$2
+	local line=$3
+	dest="."
+	## Path check here
+	dest=$(proj_rel_to_rel $line $proj_home)
+	dest=$(rel_to_abs $proj_parent $dest)
+	echo -e "${line_header_color}ava: ${std_out_color}Recognized class file destination as $dest"
+	if [ ! -d "$dest" ]; then
+		echo -e "${line_header_color}ava: ${error_color}Compiled destination ($dest) does not exist"
+		exit
+	fi
+}
+
+# Handles the fourth line, which is the runnable class
+# First parameter is the line
+function parse_runnable {
+	run=$1
+	## Check if it is dir.dir...dir.file
+	echo -e "${line_header_color}ava: ${std_out_color}Recognized main runnable class as $run"
+}
+
+# Handles other lines, which are compilable files
+# First parameter is the project config location
+# Second parameter is the project home
+# Third patameter is the line
+function parse_compilable {
+	local proj_config_loc=$1
+	local proj_home=$2
+	local line=$3
+	comp_path=$(proj_rel_to_rel $line $proj_home)
+	# Resolve the path part
+	local file=$(get_file $comp_path)
+	local compile_parent=$(parent_of $comp_path)
+	local abs=$(rel_to_abs $proj_parent $compile_parent)
+	comp_path="$abs/$file"
+	echo -e "${line_header_color}ava: ${std_out_color}Added $comp_path to compile list"
+}
+
+function ava {
+	## Get the config and a temp output
+		tmp_output_file=$(find_tmp_file out)
+		find_proj_config_file
+	## Read the configuration file
+		proj_parent=$(parent_of $proj_config_location)
+		dest="."
+		run="."
+		compile=""
+
+		count=0
+		while read -r line; do
+			if [[ $line = \#* ]]; then
+				continue
+			fi
+			count=$(expr $count + 1)
+			## $project_home is available after this
+			if [ $count -eq 1 ]; then
+				parse_home $proj_config_location $line
+			## $classpath is available after this
+			elif [ $count -eq 2 ]; then
+				parse_classpath $proj_config_location $project_home $line
+			## $dest is available after this
+			elif [ $count -eq 3 ]; then
+				parse_destination $proj_config_location $project_home $line
+			## $run is available after this
+			elif [ $count -eq 4 ]; then
+				parse_runnable $line
+			# All other lines are compiled
+			else
+				parse_compilable $proj_config_location $project_home $line
+				compile="$compile $comp_path"
+			fi
+		done < $proj_config_location
+
+	compile=${compile:1}
+	javac -cp $classpath:$dest -d $dest $compile 2> $tmp_output_file
+	compile_print=${compile//$project_home\//}
+	cp_print=${cp//$project_home\//}
+	dest_print=${dest//$project_home\//}
+	echo -e "${line_header_color}ava: ${command_color}javac -cp $cp_print:$dest_print -d $dest_print $compile_print"
+	if [ -s $tmp_output_file ]; then
+		echo -e "${line_header_color}ava: ${error_color}Error compiling $compile_print:"
+		while IFS= read -r outLine; do
+			echo -e "     ${std_out_color}$outLine"
+		done < $tmp_output_file
+		rm $tmp_output_file
+		exit
+	else
+		echo -e "${line_header_color}ava: ${affirmation_color}Compiled $compile_print without errors"
+		rm $tmp_output_file
+	fi
+
+	echo -e "${line_header_color}ava: ${command_color}java -cp $cp_print:$dest_print $run${output_color}"
+
+	# Create a project log if it doesn't exits and the logging includes it
+	project_log=$project_home/$project_log_name
+	if [ ! -f $project_log ]; then
+		if [ "$logging_type" == "$PROJECT_LOGGING" ] || [ "$logging_type" == "$BOTH_LOGGING" ]; then
+			touch $project_log
+		fi
+	fi
+
+	# Create the unique individual log and add the header
+	individual_log=$(find_tmp_file $individual_log_name)
+	touch $individual_log
+	rundate=`date`
+	echo "========== $rundate ===== java -cp $cp:$dest $run ==========" > $individual_log
+
+	java -cp $cp:$dest $run |& tee -a $individual_log
+
+	# If it is project or both logging, create add to the project log
+	if [ "$logging_type" == "$PROJECT_LOGGING" ] || [ "$logging_type" == "$BOTH_LOGGING" ]; then
+		dummy=$(find_tmp_file dummy)
+		echo "" >> $individual_log
+		echo "" >> $individual_log
+		cat $individual_log $project_log > $dummy
+		mv $dummy $project_log
+	fi
+
+	# If it is project or none logging, remove the individual log
+	if [ "$logging_type" == "$PROJECT_LOGGING" ] || [ "$logging_type" == "$NONE_LOGGING" ]; then
+		rm $individual_log
+	fi
+
+	echo -e "${header_footer_color}Thank you for using the Ava compiling and executing tool for Java :)"
+}
+
+basic_start
+while getopts ":m" o; do
+	case "${o}" in
+		m)
+			echo -e "${line_header_color}ava: ${std_out_color}Making project configuration file"
+			print_proj_config "${proj_config_file_name}"
+			;;
+		*)
+			echo "Not making"
+			ava
+			;;
+	esac
+done
+ava

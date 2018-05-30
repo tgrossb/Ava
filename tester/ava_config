@@ -1,0 +1,16 @@
+## This is the per project configuration file. All locations can be
+## relative to the project home or absolute, and the @ symbol represents
+## the project home and can be used after the home variable's definition.
+## Comments are allowed, but empty lines are only allowed in the compile list.
+# Project home variable
+/home/theo/computerScience/ava/tester
+# Library location or classpath, can be left empty for none
+
+# Destination for compiled files
+@/bin
+# Main class to run
+test.one.One 
+# Classes to be compiled
+@/src/test/one/One.java
+@/src/test/two/Two.java
+@/src/test/two/three/Three.java

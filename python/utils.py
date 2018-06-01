@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import subprocess
 import os
 import sys
 import configparser
@@ -10,10 +11,10 @@ def getConfigParser():
 	return parser
 
 
-def out(*args):
+def out(*args, end="\n"):
 	s = ""
 	for arg in args:
-		if not toolConfig == None and arg in DEFAULTS:
+		if not toolConfig == None and arg in TOOL_DEFAULTS:
 			escaped = str((BOLDER if configs[arg][BOLD] else NORMALIZER) + toolConfig[arg][COLOR])
 			s += inverseEscape(escaped)
 		elif arg in TOOL_DEFAULTS:
@@ -21,7 +22,19 @@ def out(*args):
 			s += inverseEscape(escaped)
 		else:
 			s += str(arg)
-	print(s)
+	print(s, end=end)
+
+
+def execute(cmd, stdout=subprocess.PIPE, stderr=None):
+	out = subprocess.Popen(cmd, stdout=stdout, stderr=stderr, universal_newlines=True)
+	stream = out.stdout
+	if stdout == None and not stderr == None:
+		stream = out.stderr
+	elif stdout == None and stderr == None:
+		return
+	for line in iter(stream.readline, ""):
+		yield line
+	stream.close()
 
 
 def exit():

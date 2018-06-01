@@ -29,23 +29,36 @@ def ava():
 
 	javac = ["javac", "-cp", cp, "-d", dest, *compileFiles]
 	utils.out(utils.LINE_H, "ava: ", utils.CMD, " ".join(javac))
-	compResult = SubProcess.run(javac, stdout=SubProcess.DEVNULL, stderr=SubProcess.PIPE)
-	if len(compResult.stderr) == 0:
+	errLines = 0
+	for line in utils.execute(javac, stdout=None, stderr=SubProcess.PIPE):
+		utils.out(utils.LINE_H, "javac: ", utils.ERR, line, end="")
+		errLines += 1
+	if errLines == 0:
 		utils.out(utils.LINE_H, "ava: ", utils.AFFIRM, "Compiled " + ", ".join([os.path.basename(file) for file in compileFiles])  + " without any errors")
 	else:
-		for line in compResult.stderr.decode("utf-8").splitlines():
-			utils.out(utils.LINE_H, "ava: ", utils.ERR, line)
 		utils.exit()
 
-	java = ["java", "-cp", cp, projectConfig[utils.PROJECT][utils.MAIN]]
+	java = ["java", "-cp", cp, projectConfig[utils.PROJECT][utils.RUN]]
 	utils.out(utils.LINE_H, "ava: ", utils.CMD, " ".join(java))
-
+	for line in utils.execute(java, stderr=SubProcess.STDOUT):
+		utils.out(utils.LINE_H, "java: ", utils.OUT if "Exception" not in line else utils.ERR, line, end="")
 	utils.exit()
 
 
 def main():
+	# Look ahead to the tool config file to get header color
+	headerColorDefault = utils.TOOL_DEFAULTS[utils.HF][utils.COLOR]
+	headerBoldDefault = utils.TOOL_DEFAULTS[utils.HF][utils.BOLD]
+	headerColor = (utils.BOLDER if headerBoldDefault else "") + headerColorDefault
+	configParser = utils.getConfigParser()
+	if os.path.exists(utils.TOOL_CONFIG_PATH):
+		configParser.read(utils.TOOL_CONFIG_PATH)
+		headerColor = configParser.get(utils.HF, utils.COLOR, fallback=headerColorDefault)
+		if configParser.getboolean(utils.HF, utils.BOLD, fallback=headerBoldDefault):
+			headerColor = utils.BOLDER + headerColor
+
 	# Get user configs and print the welcome message
-	utils.out(utils.HF, "Welcome to the Ava Compiling and Executing Tool - Written by Theo Grossberndt")
+	utils.out(utils.inverseEscape(headerColor) + "Welcome to the Ava Compiling and Executing Tool - Written by Theo Grossberndt")
 	args = parseArgs()
 
 	# Reapir tool configuration file, then exit

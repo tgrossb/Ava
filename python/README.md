@@ -7,14 +7,16 @@ of a config file by searching the child directories to find libraries, files to 
 ## Features ##
 - [X] Named projects
 - [X] Multiple and parallel file compiling
-- [ ] Automatic running
+- [X] Automatic running
 - [ ] Project and individual logging options
 - [X] External library compiling available
 - [X] Color and logging per user configurations
 - [X] Automatic tool and project configuration file generation
 - [ ] Intelligent project configuration generation
-- [ ] Clickable error output to take the user to the error
+- [ ] Clickable error output to take the user to the error (this is a terminal problem, might be a long shot)
 - [ ] Normal, verbose, and silent output options
 - [ ] Integrated version control (maybe)
+- [X] Configuration file look ahead
+- [X] Error highlighting in `java` command output
 
 Have an idea for a new feature? Let me know so I can do my best to add it to the tool.

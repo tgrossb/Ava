@@ -4,14 +4,13 @@ import utils
 import sys
 import os
 import argparse
-import configparser
 
 def repairToolConfigFile():
 	if not os.path.exists(utils.TOOL_CONFIG_PATH):
 		makeToolConfigFile(utils.TOOL_DEFAULTS)
 		return
 	utils.out(utils.LINE_H, "ava: ", utils.STD_OUT, "Repairing tool configuration file at ", utils.TOOL_CONFIG_PATH)
-	config = configparser.ConfigParser()
+	config = utils.getConfigParser()
 	config.read(utils.TOOL_CONFIG_PATH)
 	repairedSections = 0
 	repairedParams = 0
@@ -34,7 +33,7 @@ def repairToolConfigFile():
 
 def makeToolConfigFile(configMap):
 	utils.out(utils.LINE_H, "ava: ", utils.STD_OUT, "Creating tool configuration file at ", utils.TOOL_CONFIG_PATH)
-	config = configparser.ConfigParser()
+	config = utils.getConfigParser()
 	for configLabel, default in configMap.items():
 		config.add_section(configLabel)
 		for param, value in default.items():
@@ -47,7 +46,7 @@ def makeToolConfigFile(configMap):
 def readToolConfigs():
 	if not os.path.exists(utils.TOOL_CONFIG_PATH):
 		makeToolConfigFile(utils.TOOL_DEFAULTS)
-	config = configparser.ConfigParser()
+	config = utils.getConfigParser()
 	config.read(utils.TOOL_CONFIG_PATH)
 
 	configs = {}

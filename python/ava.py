@@ -2,10 +2,10 @@
 import toolConfig as ToolConfig
 import projectConfig as ProjectConfig
 import utils
-import sys
 import os
 import argparse as ArgParser
 import subprocess as SubProcess
+import re
 
 def parseArgs():
 	argParser = ArgParser.ArgumentParser()
@@ -40,8 +40,13 @@ def ava():
 
 	java = ["java", "-cp", cp, projectConfig[utils.PROJECT][utils.RUN]]
 	utils.out(utils.LINE_H, "ava: ", utils.CMD, " ".join(java))
+	exceptionMatcher = re.compile(r"^.*Exception[^\n]+(\s+at [^\n]+)*\s*\Z", re.MULTILINE | re.DOTALL)
+	runningLine = ""
 	for line in utils.execute(java, stderr=SubProcess.STDOUT):
-		utils.out(utils.LINE_H, "java: ", utils.OUT if "Exception" not in line else utils.ERR, line, end="")
+		runningLine += line
+#		print(runningLine)
+		outputColor = utils.ERR if exceptionMatcher.match(runningLine) else utils.OUT
+		utils.out(utils.LINE_H, "java: ", outputColor, line, end="")
 	utils.exit()
 
 
@@ -76,14 +81,5 @@ def main():
 		utils.exit()
 
 	ava()
-
-
-def out(*args):
-	utils.out(*args)
-
-
-#########################################
-# toolConfigs = None
-###########################################
 
 main()

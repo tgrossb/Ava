@@ -16,8 +16,15 @@ public class Main extends JFrame {
 		setSize(200, 200);
 		setVisible(true);
 		System.out.println("Main constructor, frame should be visible");
-		System.out.println("About to create a runtime error");
+		System.out.println("About to throw and exception");
 		int[] arr = new int[10];
+		try {
+			arr[10] = 10;
+		} catch (IndexOutOfBoundsException e){
+			e.printStackTrace();
+		}
+		System.out.println("Buuuuuuttt, we're still chugging on");
+		System.out.println("Uh oh, now theres about to be a real error");
 		arr[10] = 10;
 	}
 }

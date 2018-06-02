@@ -19,13 +19,18 @@ def repairToolConfigFile():
 			config[configLabel] = {param: str(value) for param, value in default.items() }
 			utils.out(utils.LINE_H, "ava: ", utils.STD_OUT, "Repairing section '" + configLabel + "' and all parameters using default values")
 			repairedSections += 1
-			repairedParams += len(default)
+			for param, value in default.items():
+				if not value == None:
+					repairedParams += 1
 			continue
 		for param, value in default.items():
 			if param not in config[configLabel]:
-				config[configLabel][param] = str(value)
-				utils.out(utils.LINE_H, "ava: ", utils.STD_OUT, "Repairing parameter '" + param + "' in section '" + configLabel + "' using default values")
-				repairedParams += 1
+				if value == None:
+					config.set(configLabel, param)
+				else:
+					config.set(configLabel, param, str(value))
+					utils.out(utils.LINE_H, "ava: ", utils.STD_OUT, "Repairing parameter '" + param + "' in section '" + configLabel + "' using default values")
+					repairedParams += 1
 	with open(utils.TOOL_CONFIG_PATH, 'w') as configFile:
 		config.write(configFile)
 	utils.out(utils.LINE_H, "ava: ", utils.AFFIRM, "Successfully repaired " + str(repairedParams) + " parameters in " + str(repairedSections) + " sections")
@@ -37,7 +42,10 @@ def makeToolConfigFile(configMap):
 	for configLabel, default in configMap.items():
 		config.add_section(configLabel)
 		for param, value in default.items():
-			config.set(configLabel, param, str(value))
+			if value == None:
+				config.set(configLabel, param)
+			else:
+				config.set(configLabel, param, str(value))
 	configFile = open(utils.TOOL_CONFIG_PATH, 'w')
 	config.write(configFile)
 	configFile.close()
@@ -58,6 +66,8 @@ def readToolConfigs():
 			missing = True
 			continue
 		for param, value in default.items():
+			if value == None:
+				continue
 			if param not in config.options(configLabel):
 				utils.out(utils.LINE_H, "ava: ", utils.BWARN, "Using default value for missing parameter '" + param + "' in section '" + configLabel + "'")
 				missing = True

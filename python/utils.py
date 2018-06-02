@@ -63,36 +63,42 @@ toolConfig = None
 
 PROJECT_CONFIG_NAME = "config.ini"
 PROJECT = 'project'
-NAME = 'project name'
+PROJECT_NAME = 'project name'
 HOME = 'project home'
 HOME_SYM = '@'
 CP = 'class path'
 DEST = 'compiled destination'
 RUN = 'runnable file'
 COMPILE = 'compile files'
-PROJECT_DEFAULTS = OrderedDict()
-PROJECT_DEFAULTS[PROJECT] = OrderedDict()
-PROJECT_DEFAULTS[PROJECT]["# The name of this project"] = None
-PROJECT_DEFAULTS[PROJECT][NAME] = "My Project\n"
-PROJECT_DEFAULTS[PROJECT]["# The home director for the project, can be relative to this file or absolute"] = None
-PROJECT_DEFAULTS[PROJECT]["# This variable can be refered to as '" + HOME_SYM + "' in the rest of the config file"] = None
-PROJECT_DEFAULTS[PROJECT][HOME] = ".\n"
-PROJECT_DEFAULTS[PROJECT]["# The paths to any external files (.jar) to be compiled, non jar files will be ignored"] = None
-PROJECT_DEFAULTS[PROJECT]["# External files can be refrenced individually and put on individual lines or with wildcards"] = None
-PROJECT_DEFAULTS[PROJECT][CP] = "@/libs/*\n@/libs/a-sweet-library.jar\n"
-PROJECT_DEFAULTS[PROJECT]["# The destination for compiled (.bin) files"] = None
-PROJECT_DEFAULTS[PROJECT][DEST] = "@/bin\n"
-PROJECT_DEFAULTS[PROJECT]["# The main, runnable file that includes a main(String[] args) function"] = None
-PROJECT_DEFAULTS[PROJECT][RUN] = "com.root.Main\n"
-PROJECT_DEFAULTS[PROJECT]["# The paths to each file that needs to be compiled, in any order"] = None
-PROJECT_DEFAULTS[PROJECT][COMPILE] = "@/src/com/root/Main.java\n@/src/com/root/utils/Utils.java"
+
+PROJECT_DEFAULTS = {
+	PROJECT: {
+		"# The name of this project": None,
+		PROJECT_NAME: "My Project\n",
+		"# The home director for the project, can be relative to this file or absolute": None,
+		"# This variable can be refered to as '" + HOME_SYM + "' in the rest of the config file": None,
+		HOME: ".\n",
+		"# The paths to any external files (.jar) to be compiled, non jar files will be ignored": None,
+		"# External files can be refrenced individually and put on individual lines or with wildcards": None,
+		CP: "@/libs/*\n@/libs/a-sweet-library.jar\n",
+		"# The destination for compiled (.bin) files": None,
+		DEST: "@/bin\n",
+		"# The main, runnable file that includes a main(String[] args) function": None,
+		RUN: "com.root.Main\n",
+		"# The paths to each file that needs to be compiled, in any order": None,
+		COMPILE: "@/src/com/root/Main.java\n@/src/com/root/utils/Utils.java"
+	}
+}
 
 #########################################
 
 TOOL_CONFIG_PATH = os.getenv("HOME") + "/.ava.ini"
+
 COLOR = 'color'
 BOLD = 'bold'
 TYPE = 'type'
+NAME = 'name'
+
 HF = 'header/footer'
 CMD = 'command'
 OUT = 'command output'
@@ -102,44 +108,90 @@ ERR = 'error'
 AFFIRM = 'affirmation'
 LINE_H = 'line header'
 STD_OUT = 'standard output'
-LOG = 'logging'
+LOG_NAME = 'log file name'
+LOGGING = 'logging type'
+
 NORMALIZER = '\\033[21m'
 BOLDER = NORMALIZER + '\\033[1m'
-TOOL_DEFAULTS = OrderedDict()
-TOOL_DEFAULTS[HF] = OrderedDict()
-TOOL_DEFAULTS[HF][COLOR] = '\\033[95m'
-TOOL_DEFAULTS[HF][BOLD] = False
-TOOL_DEFAULTS[CMD] = OrderedDict()
-TOOL_DEFAULTS[CMD][COLOR] = '\\033[94m'
-TOOL_DEFAULTS[CMD][BOLD] = False
-TOOL_DEFAULTS[OUT] = OrderedDict()
-TOOL_DEFAULTS[OUT][COLOR] = '\\033[37m'
-TOOL_DEFAULTS[OUT][BOLD] = False
-TOOL_DEFAULTS[WARN] = OrderedDict()
-TOOL_DEFAULTS[WARN][COLOR] = '\\033[93m'
-TOOL_DEFAULTS[WARN][BOLD] = False
-TOOL_DEFAULTS[BWARN] = OrderedDict()
-TOOL_DEFAULTS[BWARN][COLOR] = '\\033[33m'
-TOOL_DEFAULTS[BWARN][BOLD] =  False
-TOOL_DEFAULTS[ERR] = OrderedDict()
-TOOL_DEFAULTS[ERR][COLOR] = '\\033[91m'
-TOOL_DEFAULTS[ERR][BOLD] = True
-TOOL_DEFAULTS[AFFIRM] = OrderedDict()
-TOOL_DEFAULTS[AFFIRM][COLOR] = '\\033[92m'
-TOOL_DEFAULTS[AFFIRM][BOLD] = False
-TOOL_DEFAULTS[LINE_H] = OrderedDict()
-TOOL_DEFAULTS[LINE_H][COLOR] =  '\\033[97m'
-TOOL_DEFAULTS[LINE_H][BOLD] = True
-TOOL_DEFAULTS[STD_OUT] = OrderedDict()
-TOOL_DEFAULTS[STD_OUT][COLOR] = '\\033[97m'
-TOOL_DEFAULTS[STD_OUT][BOLD] =False
-TOOL_DEFAULTS[LOG] = OrderedDict()
-TOOL_DEFAULTS[LOG][TYPE] = 'project'
+
+PROJECT_LOGGING='project'
+INDIVIDUAL_LOGGING='individual'
+BOTH_LOGGING='both'
+NONE_LOGGING='none'
+
+TOOL_DEFAULTS = {
+	HF: {
+		"# Color of the header and footer text": None,
+		"# This is used when the tool starts and finishes": None,
+		COLOR: '\\033[95m',
+		BOLD: False
+	},
+	CMD: {
+		"# Color of the executed commands": None,
+		"# This is used to reflect the commands the tool runs": None,
+		COLOR: '\\033[94m',
+		BOLD: False
+	},
+	OUT: {
+		"# Color of the outputs": None,
+		"# This is the color used when your program prints": None,
+		COLOR: '\\033[37m',
+		BOLD: False
+	},
+	WARN: {
+		"# Color of important warning outputs": None,
+		COLOR: '\\033[93m',
+		BOLD: False
+	},
+	BWARN: {
+		"# Color of background warning outputs": None,
+		"# This is used for informational warnings that support important warnings": None,
+		COLOR: '\\033[33m',
+		BOLD: False
+	},
+	ERR: {
+		"# Color of the error outputs": None,
+		COLOR: '\\033[91m',
+		BOLD: True
+	},
+	AFFIRM: {
+		"# Color of affirmation outputs": None,
+		"# This is used for statements confirming actions or values": None,
+		COLOR: '\\033[92m',
+		BOLD: False
+	},
+	LINE_H: {
+		"# Color of line headers": None,
+		COLOR: '\\033[97m',
+		BOLD: True
+	},
+	STD_OUT: {
+		"# Color of standard output": None,
+		"# This is used for basic output created by the tool, not your program": None,
+		COLOR: '\\033[97m',
+		BOLD: False
+	},
+	LOG_NAME: {
+		"# The name of the file where logs are stored": None,
+		"# This should not be a path, as the actual location will change": None,
+		NAME: "ava.log"
+	},
+	LOGGING: {
+		"# The type of logging": None,
+		"# Log files store the stdout and stderr from each run": None,
+		"# Options are": None,
+		"#     " + PROJECT_LOGGING + ": logs are stored in the project home": None,
+		"#     " + INDIVIDUAL_LOGGING + ": logs are stored in the directory where the command is run from": None,
+		"#     " + BOTH_LOGGING + ": logs are stored in the project home and the directory where the command is run from": None,
+		"#     " + NONE_LOGGING + ": logs are not created, and nothing is stored": None,
+		TYPE: PROJECT_LOGGING
+	}
+}
 
 #########################################
 
 ALLOW_MULTIPLE_VALUES = {
-	NAME: False,
+	PROJECT_NAME: False,
 	HOME: False,
 	CP: True,
 	DEST: False,
@@ -148,3 +200,4 @@ ALLOW_MULTIPLE_VALUES = {
 }
 
 ###########################################
+

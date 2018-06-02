@@ -44,7 +44,6 @@ def ava():
 	runningLine = ""
 	for line in utils.execute(java, stderr=SubProcess.STDOUT):
 		runningLine += line
-#		print(runningLine)
 		outputColor = utils.ERR if exceptionMatcher.match(runningLine) else utils.OUT
 		utils.out(utils.LINE_H, "java: ", outputColor, line, end="")
 	utils.exit()

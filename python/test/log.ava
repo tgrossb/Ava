@@ -1,4 +1,4 @@
-Run on 2018-06-05 11:45:16.473197 with command 'java -cp test/bin:test/libs/*:test/libs/a-sweet-library.jar com.root.Main':
+Run on 2018-06-05 14:28:22.742778 with command 'java -cp test/bin:test/libs/*:test/libs/a-sweet-library.jar com.root.Main':
 	Main func
 	Utils constructor
 	Main constructor, frame should be visible
@@ -14,39 +14,7 @@ Run on 2018-06-05 11:45:16.473197 with command 'java -cp test/bin:test/libs/*:te
 		at com.root.utils.Utils.<init>(Utils.java:8)
 		at com.root.Main.main(Main.java:10)
 
-Run on 2018-06-05 11:44:48.782171 with command 'java -cp bin:libs/*:libs/a-sweet-library.jar com.root.Main':
-	Main func
-	Utils constructor
-	Main constructor, frame should be visible
-	About to throw and exception
-	java.lang.ArrayIndexOutOfBoundsException: 10
-		at com.root.Main.<init>(Main.java:22)
-		at com.root.utils.Utils.<init>(Utils.java:8)
-		at com.root.Main.main(Main.java:10)
-	Buuuuuuttt, we're still chugging on
-	Uh oh, now theres about to be a real exception
-	Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: 10
-		at com.root.Main.<init>(Main.java:28)
-		at com.root.utils.Utils.<init>(Utils.java:8)
-		at com.root.Main.main(Main.java:10)
-
-Run on 2018-06-05 11:44:37.036684 with command 'java -cp test/bin:test/libs/*:test/libs/a-sweet-library.jar com.root.Main':
-	Main func
-	Utils constructor
-	Main constructor, frame should be visible
-	About to throw and exception
-	java.lang.ArrayIndexOutOfBoundsException: 10
-		at com.root.Main.<init>(Main.java:22)
-		at com.root.utils.Utils.<init>(Utils.java:8)
-		at com.root.Main.main(Main.java:10)
-	Buuuuuuttt, we're still chugging on
-	Uh oh, now theres about to be a real exception
-	Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: 10
-		at com.root.Main.<init>(Main.java:28)
-		at com.root.utils.Utils.<init>(Utils.java:8)
-		at com.root.Main.main(Main.java:10)
-
-Run on 2018-06-05 11:44:24.309581 with command 'java -cp test/bin:test/libs/*:test/libs/a-sweet-library.jar com.root.Main':
+Run on 2018-06-05 14:27:02.559865 with command 'java -cp test/bin:test/libs/*:test/libs/a-sweet-library.jar com.root.Main':
 	Main func
 	Utils constructor
 	Main constructor, frame should be visible

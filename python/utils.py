@@ -41,8 +41,7 @@ def execute(cmd, stdout=subprocess.PIPE, stderr=None):
 def openLog(configLoc, projectHome, javaCommand):
 	global runningLog, projectLog, indivLog
 	runningLog = "Run on " + str(datetime.now()) + " with command '" + javaCommand + "':"
-	logging = toolConfigs[LOGGING][TYPE]
-	if not logging == INDIVIDUAL_LOGGING:
+	if toolConfigs[LOGGING][PROJECT_LOGGING]:
 		projLogLoc = os.path.relpath(os.path.normpath(os.path.join(configLoc, os.pardir, projectHome, toolConfigs[LOG_NAME][NAME])))
 		if not os.path.exists(projLogLoc):
 			out(LINE_H, "ava: ", AFFIRM, "Creating project log file at " + projLogLoc)
@@ -50,7 +49,7 @@ def openLog(configLoc, projectHome, javaCommand):
 		else:
 			out(LINE_H, "ava: ", AFFIRM, "Using project log file at " + projLogLoc)
 			projectLog = open(projLogLoc, 'r+')
-	if not logging == PROJECT_LOGGING:
+	if toolConfigs[LOGGING][INDIVIDUAL_LOGGING]:
 		indivLogLoc = toolConfigs[LOG_NAME][NAME]
 		dotLoc = indivLogLoc.index(".")
 		counter = 1
@@ -75,32 +74,6 @@ def closeLog():
 	if not indivLog == None:
 		indivLog.write(runningLog)
 		indivLog.close()
-
-
-def oldLog(lines, configLoc, projectHome, javaCommand):
-	logging = toolConfigs[LOGGING][TYPE]
-	if logging == NONE_LOGGING:
-		return
-	startLine = "Run on " + str(datetime.now()) + " with command '" + javaCommand + "':\n"
-	if not logging == INDIVIDUAL_LOGGING:
-		# Look for a project log
-		projLogLoc = os.path.relpath(os.path.normpath(os.path.join(configLoc, os.pardir, projectHome, toolConfigs[LOG_NAME][NAME])))
-		if not os.path.exists(projLogLoc):
-			out(LINE_H, "ava: ", AFFIRM, "Creating project log file at " + projLogLoc)
-			open(projLogLoc, 'w').close()
-		else:
-			out(LINE_H, "ava: ", AFFIRM, "Using project log file at " + projLogLoc)
-		prependToFile(startLine, lines, projLogLoc)
-	if not logging == PROJECT_LOGGING:
-		indivLogLoc = toolConfigs[LOG_NAME][NAME]
-		dotLoc = indivLogLoc.index(".")
-		counter = 1
-		while os.path.exists(indivLogLoc[:dotLoc] + str(counter) + indivLogLoc[dotLoc:]):
-			counter += 1
-		indivLogLoc = indivLogLoc[:dotLoc] + str(counter) + indivLogLoc[dotLoc:]
-		out(LINE_H, "ava: ", AFFIRM, "Creating individual log file at " + indivLogLoc)
-		open(indivLogLoc, 'w').close()
-		prependToFile(startLine, lines, indivLogLoc)
 
 
 def prependToFile(startLine, lines, fileLocation):
@@ -171,7 +144,6 @@ TOOL_CONFIG_PATH = os.getenv("HOME") + "/.ava.ini"
 
 COLOR = 'color'
 BOLD = 'bold'
-TYPE = 'type'
 NAME = 'name'
 
 HF = 'header/footer'
@@ -189,10 +161,8 @@ LOGGING = 'logging type'
 NORMALIZER = '\\033[21m'
 BOLDER = NORMALIZER + '\\033[1m'
 
-PROJECT_LOGGING='project'
-INDIVIDUAL_LOGGING='individual'
-BOTH_LOGGING='both'
-NONE_LOGGING='none'
+PROJECT_LOGGING='project logging'
+INDIVIDUAL_LOGGING='individual logging'
 
 TOOL_DEFAULTS = {
 	HF: {
@@ -257,9 +227,10 @@ TOOL_DEFAULTS = {
 		"# Options are": None,
 		"#     " + PROJECT_LOGGING + ": logs are stored in the project home": None,
 		"#     " + INDIVIDUAL_LOGGING + ": logs are stored in the directory where the command is run from": None,
-		"#     " + BOTH_LOGGING + ": logs are stored in the project home and the directory where the command is run from": None,
-		"#     " + NONE_LOGGING + ": logs are not created, and nothing is stored": None,
-		TYPE: PROJECT_LOGGING
+		"# Each parameter is a boolean": None,
+		"# Mark one, both, or none as true to store logs in that style": None,
+		PROJECT_LOGGING: True,
+		INDIVIDUAL_LOGGING: False
 	}
 }
 

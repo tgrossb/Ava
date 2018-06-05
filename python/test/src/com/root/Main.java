@@ -24,7 +24,7 @@ public class Main extends JFrame {
 			e.printStackTrace();
 		}
 		System.out.println("Buuuuuuttt, we're still chugging on");
-		System.out.println("Uh oh, now theres about to be a real error");
+		System.out.println("Uh oh, now theres about to be a real exception");
 		arr[10] = 10;
 	}
 }

@@ -4,6 +4,7 @@ import os
 import sys
 import configparser
 from collections import OrderedDict
+from datetime import datetime
 
 def getConfigParser():
 	parser = configparser.ConfigParser(allow_no_value = True, delimiters = ('='))
@@ -37,6 +38,79 @@ def execute(cmd, stdout=subprocess.PIPE, stderr=None):
 	stream.close()
 
 
+def openLog(configLoc, projectHome, javaCommand):
+	global runningLog, projectLog, indivLog
+	runningLog = "Run on " + str(datetime.now()) + " with command '" + javaCommand + "':"
+	logging = toolConfigs[LOGGING][TYPE]
+	if not logging == INDIVIDUAL_LOGGING:
+		projLogLoc = os.path.relpath(os.path.normpath(os.path.join(configLoc, os.pardir, projectHome, toolConfigs[LOG_NAME][NAME])))
+		if not os.path.exists(projLogLoc):
+			out(LINE_H, "ava: ", AFFIRM, "Creating project log file at " + projLogLoc)
+			projectLog = open(projLogLoc, 'w+')
+		else:
+			out(LINE_H, "ava: ", AFFIRM, "Using project log file at " + projLogLoc)
+			projectLog = open(projLogLoc, 'r+')
+	if not logging == PROJECT_LOGGING:
+		indivLogLoc = toolConfigs[LOG_NAME][NAME]
+		dotLoc = indivLogLoc.index(".")
+		counter = 1
+		while os.path.exists(indivLogLoc[:dotLoc] + str(counter) + indivLogLoc[dotLoc:]):
+			counter += 1
+		indivLogLoc = indivLogLoc[:dotLoc] + str(counter) + indivLogLoc[dotLoc:]
+		out(LINE_H, "ava: ", AFFIRM, "Creating individual log file at " + indivLogLoc)
+		indivLog = open(indivLogLoc, 'w')
+
+
+def log(line):
+	global runningLog
+	runningLog += "\n\t" + line.rstrip().replace("\n", "\n\t")
+
+
+def closeLog():
+	if not projectLog == None:
+		content = runningLog + "\n\n" + projectLog.read()
+		projectLog.seek(0, 0)
+		projectLog.write(content.rstrip())
+		projectLog.close()
+	if not indivLog == None:
+		indivLog.write(runningLog)
+		indivLog.close()
+
+
+def oldLog(lines, configLoc, projectHome, javaCommand):
+	logging = toolConfigs[LOGGING][TYPE]
+	if logging == NONE_LOGGING:
+		return
+	startLine = "Run on " + str(datetime.now()) + " with command '" + javaCommand + "':\n"
+	if not logging == INDIVIDUAL_LOGGING:
+		# Look for a project log
+		projLogLoc = os.path.relpath(os.path.normpath(os.path.join(configLoc, os.pardir, projectHome, toolConfigs[LOG_NAME][NAME])))
+		if not os.path.exists(projLogLoc):
+			out(LINE_H, "ava: ", AFFIRM, "Creating project log file at " + projLogLoc)
+			open(projLogLoc, 'w').close()
+		else:
+			out(LINE_H, "ava: ", AFFIRM, "Using project log file at " + projLogLoc)
+		prependToFile(startLine, lines, projLogLoc)
+	if not logging == PROJECT_LOGGING:
+		indivLogLoc = toolConfigs[LOG_NAME][NAME]
+		dotLoc = indivLogLoc.index(".")
+		counter = 1
+		while os.path.exists(indivLogLoc[:dotLoc] + str(counter) + indivLogLoc[dotLoc:]):
+			counter += 1
+		indivLogLoc = indivLogLoc[:dotLoc] + str(counter) + indivLogLoc[dotLoc:]
+		out(LINE_H, "ava: ", AFFIRM, "Creating individual log file at " + indivLogLoc)
+		open(indivLogLoc, 'w').close()
+		prependToFile(startLine, lines, indivLogLoc)
+
+
+def prependToFile(startLine, lines, fileLocation):
+	with open(fileLocation, 'r+') as file:
+		content = file.read()
+		file.seek(0, 0)
+		file.write(startLine)
+		file.write("\t" + lines.replace("\n", "\n\t").rstrip() + "\n\n" + content)
+
+
 def exit():
 	out(HF, "Thank you for using the Ava Compiling and Executing Tool")
 	sys.exit()
@@ -58,7 +132,8 @@ def replaceSymbol(sym, val, string):
 
 
 toolConfig = None
-
+runningLog = None
+projectLog, indivLog = None, None
 #########################################
 
 PROJECT_CONFIG_NAME = "config.ini"
@@ -174,7 +249,7 @@ TOOL_DEFAULTS = {
 	LOG_NAME: {
 		"# The name of the file where logs are stored": None,
 		"# This should not be a path, as the actual location will change": None,
-		NAME: "ava.log"
+		NAME: "log.ava"
 	},
 	LOGGING: {
 		"# The type of logging": None,

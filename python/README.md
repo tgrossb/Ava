@@ -8,7 +8,8 @@ of a config file by searching the child directories to find libraries, files to 
 - [X] Named projects
 - [X] Multiple and parallel file compiling
 - [X] Automatic running
-- [ ] Project and individual logging options - In progress
+- [X] Project and individual logging options
+- [ ] Command piping to log file
 - [X] External library compiling available
 - [X] Color and logging per user configurations
 - [X] Automatic tool and project configuration file generation

@@ -9,7 +9,7 @@ of a config file by searching the child directories to find libraries, files to 
 - [X] Multiple and parallel file compiling
 - [X] Automatic running
 - [X] Project and individual logging options
-- [ ] Command piping to log file
+- [X] Command piping to log file - Kind of
 - [X] External library compiling available
 - [X] Color and logging per user configurations
 - [X] Automatic tool and project configuration file generation

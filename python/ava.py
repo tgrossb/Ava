@@ -42,13 +42,13 @@ def ava():
 	utils.out(utils.LINE_H, "ava: ", utils.CMD, " ".join(java))
 	exceptionMatcher = re.compile(r"^.*Exception[^\n]+(\s+at [^\n]+)*\s*\Z", re.MULTILINE | re.DOTALL)
 	runningLine = ""
-#	utils.openLog(configLoc, projectConfig[utils.PROJECT][utils.HOME], " ".join(java))
+	utils.openLog(configLoc, projectConfig[utils.PROJECT][utils.HOME], " ".join(java))
 	for line in utils.execute(java, stderr=SubProcess.STDOUT):
 		runningLine += line
 		outputColor = utils.ERR if exceptionMatcher.match(runningLine) else utils.OUT
 		utils.out(utils.LINE_H, "java: ", outputColor, line, end="")
-		utils.oldLog(line, configLoc, projectConfig[utils.PROJECT][utils.HOME], " ".join(java))
-#	utils.closeLog()
+		utils.log(line)
+	utils.closeLog()
 	utils.exit()
 
 

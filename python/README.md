@@ -15,7 +15,7 @@ of a config file by searching the child directories to find libraries, files to 
 - [X] Automatic tool and project configuration file generation
 - [ ] Intelligent project configuration generation
 - [ ] Clickable error output to take the user to the error (this is a terminal problem, might be a long shot)
-- [ ] Normal, verbose, and silent output options
+- [X] Normal, verbose, quiet, and silent output options
 - [ ] Integrated version control (maybe)
 - [X] Configuration file look ahead
 - [X] Error highlighting in `java` command output

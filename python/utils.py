@@ -12,7 +12,9 @@ def getConfigParser():
 	return parser
 
 
-def out(*args, end="\n"):
+def out(*args, end="\n", softest = 0):
+	if outputLevel < softest:
+		return
 	s = ""
 	for arg in args:
 		if not toolConfig == None and arg in TOOL_DEFAULTS:
@@ -104,12 +106,21 @@ def replaceSymbol(sym, val, string):
 	return string
 
 
+outputLevel = None
 toolConfig = None
 runningLog = None
 projectLog, indivLog = None, None
+
 #########################################
 
-PROJECT_CONFIG_NAME = "config.ini"
+V = 1   # Verbose output
+N = 0   # Normal output
+Q = -1  # Quiet output
+S = -2  # Silent output
+
+#########################################
+
+PROJECT_CONFIG_NAME = 'config.ini'
 PROJECT = 'project'
 PROJECT_NAME = 'project name'
 HOME = 'project home'
@@ -140,7 +151,7 @@ PROJECT_DEFAULTS = {
 
 #########################################
 
-TOOL_CONFIG_PATH = os.getenv("HOME") + "/.ava.ini"
+TOOL_CONFIG_PATH = os.getenv('HOME') + '/.ava.ini'
 
 COLOR = 'color'
 BOLD = 'bold'

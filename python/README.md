@@ -4,6 +4,20 @@ uses .ini files for configuration, making them far more human readable and easil
 is a big step towards mass use as you don't need to write the skeleton of a configuration file yourself.  Eventually, I want the make project configuration method to create more than just the basic structure 
 of a config file by searching the child directories to find libraries, files to be compiled, and the runnable class.
 
+## Creating a single runnable ##
+I am working on making the releaser tool in the release directory for easy generation.  Currently though, these commands can be used reliably to make a single runnable.
+```
+cd release
+mkdir avaRelease
+cp ../*.py __main__.py avaRelease
+cd avaRelease && zip -r ../inter.zip * && cd ..
+echo '#!/usr/bin/env python3' | cat - inter.zip > ava
+chmod +x ava
+rm inter.zip
+```
+This will create a runnable file called `ava` that you can then move to your `/usr/local/bin/` file or move it to where you would like and add it to your `PATH` variable. The `releaser` script 
+is something I'm working on that does this, but it is fairly untested, so use at your own risk.
+
 ## Features ##
 - [X] Named projects
 - [X] Multiple and parallel file compiling

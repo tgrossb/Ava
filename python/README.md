@@ -4,19 +4,29 @@ uses .ini files for configuration, making them far more human readable and easil
 is a big step towards mass use as you don't need to write the skeleton of a configuration file yourself.  Eventually, I want the make project configuration method to create more than just the basic structure 
 of a config file by searching the child directories to find libraries, files to be compiled, and the runnable class.
 
-## Creating a single runnable ##
-I am working on making the releaser tool in the release directory for easy generation.  Currently though, these commands can be used reliably to make a single runnable.
+## Building ##
+To build this tool, you can use the simple bash script I wrote to create a single runnable. Or, of course, if you're hard core you can build it yourself. Both options 
+are here.<br/>
+**This is the easy way to build, by using the build tool**:
+```bash
+cd ava/python
+sudo ./build -i -o ava
 ```
-cd release
+This will use the `build` tool to compile all of the python files into a zipped folder and export it as a runnable to `/usr/local/bin/ava` so the command `ava` can be used from anywhere.<br/>
+Or, if you really want, you could build it yourself:
+```bash
+cd ava/python
 mkdir avaRelease
-cp ../*.py __main__.py avaRelease
+cp *.py avaRelease
 cd avaRelease && zip -r ../inter.zip * && cd ..
 echo '#!/usr/bin/env python3' | cat - inter.zip > ava
 chmod +x ava
+rm -rf avaRelease
 rm inter.zip
+sudo mv ava /usr/local/bin
 ```
-This will create a runnable file called `ava` that you can then move to your `/usr/local/bin/` file or move it to where you would like and add it to your `PATH` variable. The `releaser` script 
-is something I'm working on that does this, but it is fairly untested, so use at your own risk.
+This will create a runnable file called `ava` that you move to the `/usr/local/bin` directory. Alternatively, you could place the `ava` executable anywhere you want and add this path 
+to your `PATH` variable. I would recommend using the tool though, its much easier.
 
 ## Features ##
 - [X] Named projects

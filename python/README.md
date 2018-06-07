@@ -18,7 +18,10 @@ Or, if you really want, you could build it yourself:
 cd ava/python
 mkdir avaRelease
 cp *.py avaRelease
-cd avaRelease && zip -r ../inter.zip * && cd ..
+cd avaRelease
+touch __main__.py
+printf "import ava\nif __name__=='__main__':\n\tava" > __main__.py
+zip -r ../inter.zip * && cd ..
 echo '#!/usr/bin/env python3' | cat - inter.zip > ava
 chmod +x ava
 rm -rf avaRelease

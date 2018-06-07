@@ -8,12 +8,13 @@ import subprocess as SubProcess
 import re
 
 def parseArgs():
-	argParser = ArgParser.ArgumentParser()
-	argParser.add_argument('-m', '--make', action='store_true')
-	argParser.add_argument('-v', '--verbose', action='store_true')
-	argParser.add_argument('-q', '--quiet', action='store_true')
-	argParser.add_argument('-s', '--silent', action='store_true')
-	argParser.add_argument('-r', '--repair-tool-config', action='store_true')
+	argParser = ArgParser.ArgumentParser(prog='ava', description='This tool can be used to compile and execute Java programs. ' +
+				'It is capable of handling external libraries and package structures.', epilog='This tool uses ini files for project configuration to make running as quick and easy as possible.')
+	argParser.add_argument('-m', '--make', action='store_true', help='make a project configuration file in the current directory, and populate the configuration file with examples')
+	argParser.add_argument('-v', '--verbose', action='store_true', help='enable verbose output')
+	argParser.add_argument('-q', '--quiet', action='store_true', help='enable quiet output')
+	argParser.add_argument('-s', '--silent', action='store_true', help='enable silent output')
+	argParser.add_argument('-r', '--repair-tool', action='store_true', help='repair the configuration file for the tool by filling in any missing or incomplete sections')
 	return argParser.parse_args()
 
 
@@ -70,7 +71,7 @@ def main(args):
 
 	# Reapir tool configuration file, then exit
 	# This is the only one that comes before getting and using the tool config
-	if args.repair_tool_config:
+	if args.repair_tool:
 		ToolConfig.repairToolConfigFile()
 		utils.exit()
 

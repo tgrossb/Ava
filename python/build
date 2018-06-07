@@ -117,7 +117,7 @@ cp *.py $dir
 printf " Done\n"
 cd $dir
 printf "Creating '__main__.py' file..."
-printf "import ava\nif __name__ == '__main__':\n\tava.initialize()" > __main__.py
+printf "import ava\nif __name__ == '__main__':\n\tava" > __main__.py
 printf " Done\n"
 
 # Make the actual executable

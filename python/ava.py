@@ -8,9 +8,9 @@ import subprocess as SubProcess
 import re
 
 def parseArgs():
-	argParser = ArgParser.ArgumentParser(prog='ava', description='This tool can be used to compile and execute Java programs. ' +
-				'It is capable of handling external libraries and package structures.', epilog='This tool uses ini files for project configuration to make running as quick and easy as possible.')
+	argParser = ArgParser.ArgumentParser(prog='ava', description=utils.TOOL_DESCRIPTION, epilog=utils.TOOL_EPILOG)
 	argParser.add_argument('-m', '--make', action='store_true', help='make a project configuration file in the current directory, and populate the configuration file with examples')
+	argParser.add_argument('-e', '--edit', action='store_true', help="edit the current project's configuration file")
 	argParser.add_argument('-v', '--verbose', action='store_true', help='enable verbose output')
 	argParser.add_argument('-q', '--quiet', action='store_true', help='enable quiet output')
 	argParser.add_argument('-s', '--silent', action='store_true', help='enable silent output')
@@ -18,10 +18,7 @@ def parseArgs():
 	return argParser.parse_args()
 
 
-def ava():
-	# Get project config
-	configLoc = ProjectConfig.findProjectConfigFile(utils.PROJECT_CONFIG_NAME)
-	utils.out(utils.LINE_H, "ava: ", utils.AFFIRM, "Using project configuration file at ", configLoc, softest=utils.Q)
+def ava(configLoc):
 	projectConfig = ProjectConfig.readProjectConfigs(configLoc)
 	dest = projectConfig[utils.PROJECT][utils.DEST]
 	cp = dest
@@ -41,10 +38,11 @@ def ava():
 		utils.exit()
 
 	java = ["java", "-cp", cp, projectConfig[utils.PROJECT][utils.RUN]]
-	utils.out(utils.LINE_H, "ava: ", utils.CMD, " ".join(java), softest=utils.Q)
+	javaString = " ".join(java)
+	utils.out(utils.LINE_H, "ava: ", utils.CMD, javaString, softest=utils.Q)
 	exceptionMatcher = re.compile(r"^.*Exception[^\n]+(\s+at [^\n]+)*\s*\Z", re.MULTILINE | re.DOTALL)
 	runningLine = ""
-	utils.openLog(configLoc, projectConfig[utils.PROJECT][utils.HOME], " ".join(java))
+	utils.openLog(configLoc, projectConfig[utils.PROJECT][utils.HOME], javaString)
 	for line in utils.execute(java, stderr=SubProcess.STDOUT):
 		runningLine += line
 		outputColor = utils.ERR if exceptionMatcher.match(runningLine) else utils.OUT
@@ -83,7 +81,18 @@ def main(args):
 		ProjectConfig.makeProjectConfigFile("./" + utils.PROJECT_CONFIG_NAME)
 		utils.exit()
 
-	ava()
+	projectConfigLoc = ProjectConfig.findProjectConfigFile(utils.toolConfigs[utils.PROJECT_CONFIG][utils.NAME])
+	utils.out(utils.LINE_H, "ava: ", utils.AFFIRM, "Using project configuration file at ", projectConfigLoc, softest=utils.Q)
+	if args.edit:
+		editor = os.getenv("EDITOR")
+		if editor == None:
+			utils.out(utils.LINE_H, "ava: ", utils.WARN, "The environment variable $EDITOR not defined, using nano by default")
+			editor = "nano"
+		edit = [editor, projectConfigLoc]
+		utils.out(utils.LINE_H, "ava: ", utils.CMD, " ".join(edit), softest=utils.Q)
+		SubProcess.call(edit)
+		utils.exit()
+	ava(projectConfigLoc)
 
 try:
 	args = parseArgs()

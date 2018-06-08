@@ -120,7 +120,6 @@ S = -2  # Silent output
 
 #########################################
 
-PROJECT_CONFIG_NAME = 'config.ini'
 PROJECT = 'project'
 PROJECT_NAME = 'project name'
 HOME = 'project home'
@@ -174,6 +173,8 @@ BOLDER = NORMALIZER + '\\033[1m'
 
 PROJECT_LOGGING='project logging'
 INDIVIDUAL_LOGGING='individual logging'
+
+PROJECT_CONFIG = 'project configuration file'
 
 TOOL_DEFAULTS = {
 	HF: {
@@ -242,6 +243,11 @@ TOOL_DEFAULTS = {
 		"# Mark one, both, or none as true to store logs in that style": None,
 		PROJECT_LOGGING: True,
 		INDIVIDUAL_LOGGING: False
+	},
+	PROJECT_CONFIG: {
+		"# The name of the project configuration file": None,
+		"# This is what ava will search for and create by default when the -m flag is used": None,
+		NAME: 'config.ini'
 	}
 }
 
@@ -258,3 +264,7 @@ ALLOW_MULTIPLE_VALUES = {
 
 ###########################################
 
+TOOL_DESCRIPTION = 'This tool can be used to compile and run Java programs from the command line using a project configuration file. This allows you to use a single, simple command ' +\
+			'to compile and run an entire project. This tool can handle everything from external libraries to complex package structures.'
+TOOL_EPILOG = 'This tool uses ini files for configuration, so you only need to input your information into the project configuration file once (automatic generation coming soon), ' +\
+			'and then running is as easy as running this program.'

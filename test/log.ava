@@ -1,3 +1,19 @@
+Run on 2018-06-11 11:17:27.762384 with command 'java -cp test/bin:test/libs/*:test/libs/a-sweet-library.jar com.root.Main':
+	Main func
+	Utils constructor
+	Main constructor, frame should be visible
+	About to throw and exception
+	java.lang.ArrayIndexOutOfBoundsException: 10
+		at com.root.Main.<init>(Main.java:22)
+		at com.root.utils.Utils.<init>(Utils.java:8)
+		at com.root.Main.main(Main.java:10)
+	Buuuuuuttt, we're still chugging on
+	Uh oh, now theres about to be a real exception
+	Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: 10
+		at com.root.Main.<init>(Main.java:28)
+		at com.root.utils.Utils.<init>(Utils.java:8)
+		at com.root.Main.main(Main.java:10)
+
 Run on 2018-06-08 09:25:59.679681 with command 'java -cp test/bin:test/libs/*:test/libs/a-sweet-library.jar com.root.Main':
 	Main func
 	Utils constructor

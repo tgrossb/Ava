@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 ###  This is pretty repetative, refactor later  ###
 import utils
 import sys
@@ -66,6 +67,8 @@ def readProjectConfigs(loc):
 			utils.out(utils.LINE_H, "ava: ", utils.ERR, "Project home parameter contains home symbol (" + utils.HOME_SYM + ")", softest=utils.S)
 			utils.exit()
 		at = os.path.relpath(os.path.normpath(os.path.join(loc, os.pardir, at)))
+		if not os.path.samefile('.', at):
+			utils.out(utils.LINE_H, "ava: ", utils.WARN, "Project configuration file ('" + loc + "') not in project home ('" + at + "')")
 	configs = OrderedDict()
 	configs[utils.PROJECT] = OrderedDict()
 	for param, value in utils.PROJECT_DEFAULTS[utils.PROJECT].items():

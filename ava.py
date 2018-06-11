@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import toolConfig as ToolConfig
 import projectConfig as ProjectConfig
 import utils

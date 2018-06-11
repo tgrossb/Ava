@@ -48,6 +48,7 @@ to your `PATH` variable. I would recommend using the tool though, its much easie
 - [ ] Integrated version control (maybe)
 - [X] Configuration file look ahead
 - [X] Error highlighting in `java` command output
+- [X] Integrated project configuration file editing
 
 ## Versions ##
 Developement has been split into two streams, one is a bash script implementation, and the other is written in python.  The bash version is currently functional, but there are still functions I would like to 

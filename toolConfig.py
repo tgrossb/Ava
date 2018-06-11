@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 ###  This is pretty repetative, refactor later  ###
 import utils
 import sys

@@ -9,12 +9,9 @@ def makeProjectConfigFile(loc):
 	utils.out(utils.LINE_H, "ava: ", utils.STD_OUT, "Creating project configuration file at ", loc, softest=utils.Q)
 	config = utils.getConfigParser()
 	for configLabel, defaults in utils.PROJECT_DEFAULTS.items():
-		config.add_section(configLabel)
+		config[configLabel] = {}
 		for param, value in defaults.items():
-			if value == None:
-				config.set(configLabel, param)
-			else:
-				config.set(configLabel, param, value)
+			config[configLabel][param] = value
 	with open(loc, 'w') as configFile:
 		config.write(configFile)
 

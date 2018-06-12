@@ -60,9 +60,31 @@ fi
 
 # Check for output file arg length
 if [[ ! $outFile ]]; then
-	printf "Error: No output file was defined with the --output or -o parameter\n"
-	printf "       Trying running with the --help or -h flag for help\n"
-	exit 4
+	printf "Using default value 'ava' for output file\n"
+	outFile="ava"
+#	printf "Error: No output file was defined with the --output or -o parameter\n"
+#	printf "       Trying running with the --help or -h flag for help\n"
+#	exit 4
+fi
+
+# If the user didn't use -i, make sure they don't want to
+if [ ! $i ]; then
+	read -p "Warning: You ran this script without the -i flag. Are you sure you want to do this?
+		Answering 'yes' will continue without integrating.
+		Answering 'no' will integrate the command.(n) " yn
+	case $yn in
+		[Yy]*)
+			printf "Continuing without integration\n"
+			;;
+		[Nn]*)
+			printf "Now integrating the command with your system\n"
+			i=y
+			;;
+		*)
+			printf "Now integrating the command with your system\n"
+			i=y
+			;;
+	esac
 fi
 
 # Check for root if it being integrated

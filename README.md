@@ -10,7 +10,7 @@ are here.<br/>
 **This is the easy way to build, by using the build tool**:
 ```bash
 cd ava
-sudo ./build -i -o ava
+sudo ./build -iw
 ```
 This will use the `build` tool to compile all of the python files into a zipped folder and export it as a runnable to `/usr/local/bin/ava` so the command `ava` can be used from anywhere.<br/>
 Or, if you really want, you could build it yourself:

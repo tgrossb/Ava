@@ -47,5 +47,6 @@ to your `PATH` variable. I would recommend using the tool though, its much easie
 - [X] Configuration file look ahead
 - [X] Error highlighting in `java` command output
 - [X] Integrated project configuration file editing
+- [ ] Smart compiling to avoid repeated compiling for large projects
 
 Have an idea for a new feature? Let me know so I can do my best to add it to the tool.

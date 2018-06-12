@@ -78,7 +78,7 @@ def main(args):
 
 	# Make a project configuration file where the command is run, then exit
 	if args.make:
-		ProjectConfig.makeProjectConfigFile("./" + utils.PROJECT_CONFIG_NAME)
+		ProjectConfig.makeProjectConfigFile("./" + utils.toolConfigs[utils.PROJECT_CONFIG][utils.NAME])
 		utils.exit()
 
 	projectConfigLoc = ProjectConfig.findProjectConfigFile(utils.toolConfigs[utils.PROJECT_CONFIG][utils.NAME])

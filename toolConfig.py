@@ -40,12 +40,9 @@ def makeToolConfigFile(configMap):
 	utils.out(utils.LINE_H, "ava: ", utils.STD_OUT, "Creating tool configuration file at ", utils.TOOL_CONFIG_PATH, softest=utils.Q)
 	config = utils.getConfigParser()
 	for configLabel, default in configMap.items():
-		config.add_section(configLabel)
+		config[configLabel] = {}
 		for param, value in default.items():
-			if value == None:
-				config.set(configLabel, param)
-			else:
-				config.set(configLabel, param, str(value))
+			config[configLabel][param] = str(value)
 	configFile = open(utils.TOOL_CONFIG_PATH, 'w')
 	config.write(configFile)
 	configFile.close()

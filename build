@@ -67,6 +67,26 @@ if [[ ! $outFile ]]; then
 #	exit 4
 fi
 
+# If the user didn't use -i, make sure they don't want to
+if [ ! $i ]; then
+	read -p "Warning: You ran this script without the -i flag. Are you sure you want to do this?
+		Answering 'yes' will continue without integrating.
+		Answering 'no' will integrate the command.(n) " yn
+	case $yn in
+		[Yy]*)
+			printf "Continuing without integration\n"
+			;;
+		[Nn]*)
+			printf "Now integrating the command with your system\n"
+			i=y
+			;;
+		*)
+			printf "Now integrating the command with your system\n"
+			i=y
+			;;
+	esac
+fi
+
 # Check for root if it being integrated
 if [ $i ] && [ "$EUID" -ne 0 ]; then
 	printf "Error: Run with root to integrate with the system\n"

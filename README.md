@@ -9,13 +9,20 @@ To build this tool, you can use the simple bash script I wrote to create a singl
 are here.<br/>
 **This is the easy way to build, by using the build tool**:
 ```bash
-cd ava
+git clone https://gitlab.com/tgrossb87/Ava.git
+cd Ava
 sudo ./build -iw
 ```
 This will use the `build` tool to compile all of the python files into a zipped folder and export it as a runnable to `/usr/local/bin/ava` so the command `ava` can be used from anywhere.<br/>
+After this, you can remove the repository if you would like:
+```bash
+cd ..
+rm -rf Ava
+```
 Or, if you really want, you could build it yourself:
 ```bash
-cd ava
+git clone https://gitlab.com/tgrossb87/Ava.git
+cd Ava
 mkdir avaRelease
 cp *.py avaRelease
 cd avaRelease
@@ -29,7 +36,7 @@ rm inter.zip
 sudo mv ava /usr/local/bin
 ```
 This will create a runnable file called `ava` that you move to the `/usr/local/bin` directory. Alternatively, you could place the `ava` executable anywhere you want and add this path 
-to your `PATH` variable. I would recommend using the tool though, its much easier.
+to your `PATH` variable. I would recommend using the tool though, its much easier.  You can then remove the repository as above if you would like.
 
 ## Features ##
 - [X] Named projects

@@ -28,12 +28,13 @@ def out(*args, end="\n", softest = 0):
 	print(s, end=end)
 
 
-def execute(cmd, stdout=subprocess.PIPE, stderr=None):
-	out = subprocess.Popen(cmd, stdout=stdout, stderr=stderr, universal_newlines=True)
+def execute(cmd, stdout=subprocess.PIPE, stderr=None, shell=False):
+	out = subprocess.Popen(cmd, stdout=stdout, stderr=stderr, universal_newlines=True, shell=shell)
 	stream = out.stdout
 	if stdout == None and not stderr == None:
 		stream = out.stderr
 	elif stdout == None and stderr == None:
+		stream.close()
 		return
 	for line in iter(stream.readline, ""):
 		yield line

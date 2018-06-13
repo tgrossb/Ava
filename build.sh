@@ -1,15 +1,24 @@
 #!/bin/bash
 
+nor="\033[21m"
+cmd="$nor\033[94m"
+out="$nor\033[37m"
+err="$nor\033[1m\033[91m"
+aff="$nor\033[92m"
+lih="$nor\033[1m\033[97m"
+std="$nor\033[97m"
+bwr="$nor\033[33m"
+
 # Got to parse for the export and help flags
 getopt --test > /dev/null
 if [[ $? -ne 4 ]]; then
-	printf "Error: getopt --test failed\n"
-	printf "       I'd try just doing the commands yourself\n"
+	echo -e "${lih}build: ${cmd}getopt --test ${err}failed with exit code $?"
+	echo -e "${lih}build: ${err}    I'd try just doing the commands yourself"
 	exit 1
 fi
 
-OPTIONS=iho:w
-LONGOPTIONS=integrate,help,output:,write
+OPTIONS=ihf:wc:o:e:a:l:s:b:
+LONGOPTIONS=integrate,help,file:,write
 
 PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTIONS --name "$0" -- "$@")
 if [[ $? -ne 0 ]]; then
@@ -31,8 +40,36 @@ while true; do
 			w=y
 			shift
 			;;
-		-o|--output)
+		-f|--file)
 			outFile="$2"
+			shift 2
+			;;
+		-c)
+			cmd="$2"
+			shift 2
+			;;
+		-o)
+			out="$2"
+			shift 2
+			;;
+		-e)
+			err="$2"
+			shift 2
+			;;
+		-a)
+			aff="$2"
+			shift 2
+			;;
+		-l)
+			lih="$2"
+			shift 2
+			;;
+		-s)
+			std="$2"
+			shift 2
+			;;
+		-b)
+			bwr="$2"
 			shift 2
 			;;
 		--)
@@ -41,20 +78,20 @@ while true; do
 			;;
 		*)
 			printf "Error: I messed something up, let me know\n"
-			exit 3
+			exit 1
 			;;
 	esac
 done
 
 # Check for help
 if [ $h ]; then
-	printf "This is a simple tool used to create a single runnable from all of the python files in this directory\n"
-	printf "Options:\n"
-	printf "    --output, -o:     The name of the file to generate\n"
-	printf "    --integrate, -i:  Integrate the tool with your system\n"
-	printf "                      Export the generated runnable to the /usr/local/bin file (requires root)\n"
-	printf "    --write, -w:      Write over existing files if requred, confirming before writing\n"
-	printf "    --help, -h:       Display this help output\n"
+	echo "This is a simple tool used to create a single runnable from all of the python files in this directory"
+	echo "Options:"
+	echo "    --output, -o:     The name of the file to generate"
+	echo "    --integrate, -i:  Integrate the tool with your system"
+	echo "                      Export the generated runnable to the /usr/local/bin file (requires root)"
+	echo "    --write, -w:      Write over existing files if requred, confirming before writing"
+	echo "    --help, -h:       Display this help output"
 	exit 0
 fi
 

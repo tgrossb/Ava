@@ -173,8 +173,8 @@ if [[ ! "$dir" ]]; then
 	exit 8
 fi
 printf " ${aff}Done\n"
-printf "${lih}build: ${std}Gathering python files into the temporary directory..."
-cp *.py $dir
+printf "${lih}build: ${std}Gathering python and updater files into the temporary directory..."
+cp *.py update.sh $dir
 printf " ${aff}Done\n"
 cd $dir
 printf "${lih}build: ${std}Creating '__main__.py' file..."

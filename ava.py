@@ -15,7 +15,41 @@ def parseArgs():
 	argParser.add_argument('-q', '--quiet', action='store_true', help='enable quiet output')
 	argParser.add_argument('-s', '--silent', action='store_true', help='enable silent output')
 	argParser.add_argument('-r', '--repair-tool', action='store_true', help='repair the configuration file for the tool by filling in any missing or incomplete sections')
+	argParser.add_argument('-u', '--update', action='store_true', help='update the tool to the latest release version')
 	return argParser.parse_args()
+
+
+#def execute(cmd, stdout=SubProcess.PIPE, stderr=SubProcess.STDOUT, stdin=None, shell=True):
+#	out = SubProcess.Popen(cmd, stdout=stdout, stderr=stderr, stdin=stdin, universal_newlines=True, shell=shell)
+#	stream = out.stdout
+#	for line in iter(stream.readline, ""):
+#		yield line
+#	stream.close()
+
+
+def update():
+	utils.out(utils.LINE_H, "ava: ", utils.STD_OUT, "Updating the ava tool")
+	updater = ["sudo", "./update.sh"]
+	utils.out(utils.LINE_H, "ava: ", utils.CMD, " ".join(updater))
+	SubProcess.call(updater)
+#	for line in utils.execute(updater, stderr=SubProcess.STDOUT, shell=True):
+#		utils.out(utils.LINE_H, "update: ", utils.OUT, line, end="")
+#	git = ["git", "clone", "https://gitlab.com/tgrossb87/Ava.git"]
+#	build = ["cd", "Ava", "&&", "sudo", "./build", "-iw"]
+#	clean = ["rm", "-rf", "Ava"]
+#	git = "git clone https://gitlab.com/tgrossb87/Ava.git"
+#	build = "cd Ava && sudo ./build -iw"
+#	clean = "rm -rf Ava"
+#	utils.out(utils.LINE_H, "ava: ", utils.CMD, git)#" ".join(git))
+#	for line in utils.execute(git, stderr=SubProcess.STDOUT, shell=True):
+#		utils.out(utils.LINE_H, "git: ", utils.OUT, line, end="")
+#	utils.out(utils.LINE_H, "ava: ", utils.CMD, build)#" ".join(build))
+#	for line in utils.execute(build, stderr=SubProcess.STDOUT, shell=True):
+#		utils.out(utils.LINE_H, "build: ", utils.OUT, line, end="")
+#	utils.out(utils.LINE_H, "ava: ", utils.CMD, clean)#" ".join(clean))
+#	for line in utils.execute(clean, stderr=SubProcess.STDOUT, shell=True):
+#		utils.out(utils.LINE_H, "clean: ", utils.OUT, line, end="")
+	utils.out(utils.LINE_H, "ava: ", utils.AFFIRM, "Ava has been successfully updated!")
 
 
 def ava(configLoc):
@@ -75,6 +109,11 @@ def main(args):
 
 	utils.toolConfigs = ToolConfig.readToolConfigs()
 	utils.out(utils.LINE_H, "ava: ", utils.AFFIRM, "Using tool configuration file at ", utils.TOOL_CONFIG_PATH, softest=utils.Q)
+
+	# Update is now the first priority
+	if args.update:
+		update()
+		utils.exit()
 
 	# Make a project configuration file where the command is run, then exit
 	if args.make:

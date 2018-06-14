@@ -14,7 +14,7 @@ getopt --test > /dev/null
 if [[ $? -ne 4 ]]; then
 	echo -e "${lih}build: ${cmd}getopt --test ${err}failed with exit code $?"
 	echo -e "${lih}build: ${err}    I'd try just doing the commands yourself"
-	exit 1
+	exit 3
 fi
 
 OPTIONS=ihf:wc:o:e:a:l:s:b:
@@ -22,7 +22,8 @@ LONGOPTIONS=integrate,help,file:,write
 
 PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTIONS --name "$0" -- "$@")
 if [[ $? -ne 0 ]]; then
-	exit 2
+	echo -e "${lih}build: ${err}getopt error, I don't know what happened"
+	exit 4
 fi
 eval set -- "$PARSED"
 
@@ -77,8 +78,8 @@ while true; do
 			break
 			;;
 		*)
-			printf "Error: I messed something up, let me know\n"
-			exit 1
+			echo -e "${lih}build: ${err}I messed something up, let me know"
+			exit 5
 			;;
 	esac
 done
@@ -97,7 +98,7 @@ fi
 
 # Check for output file arg length
 if [[ ! $outFile ]]; then
-	printf "Using default value 'ava' for output file\n"
+	echo -e "${lih}build: ${std}Using default value 'ava' for output file"
 	outFile="ava"
 #	printf "Error: No output file was defined with the --output or -o parameter\n"
 #	printf "       Trying running with the --help or -h flag for help\n"
@@ -106,19 +107,20 @@ fi
 
 # If the user didn't use -i, make sure they don't want to
 if [ ! $i ]; then
-	read -p "Warning: You ran this script without the -i flag. Are you sure you want to do this?
-		Answering 'yes' will continue without integrating.
-		Answering 'no' will integrate the command.(n) " yn
+	echo -e "${lih}build: ${bwr}You ran this script without the -i flag. Are you sure you want to do this?"
+	echo -e "${lih}build: ${bwr}    Answering 'yes' will continue without integrating."
+	printf "${lih}build: ${bwr}    Answering 'no' will integrate the command.(n) "
+	read yn
 	case $yn in
 		[Yy]*)
-			printf "Continuing without integration\n"
+			echo -e "${lih}build: ${aff}Continuing without integration"
 			;;
 		[Nn]*)
-			printf "Now integrating the command with your system\n"
+			echo -e "${lih}build: ${aff}Now integrating the command with your system"
 			i=y
 			;;
 		*)
-			printf "Now integrating the command with your system\n"
+			echo -e "${lih}build: ${aff}Now integrating the command with your system"
 			i=y
 			;;
 	esac
@@ -126,9 +128,8 @@ fi
 
 # Check for root if it being integrated
 if [ $i ] && [ "$EUID" -ne 0 ]; then
-	printf "Error: Run with root to integrate with the system\n"
-	printf "       /usr/local/bin requires root to write to\n"
-	exit 4
+	echo -e "${lih}build: ${err}Run with root to integrate with the system"
+	exit 6
 fi
 
 # If it is being integrated, make the out file /usr/local/bin/<outFile name>
@@ -138,75 +139,78 @@ if [ $i ]; then
 fi
 
 # Check if output file exists already
-if [ -a "$outFile" ]; then
+if [[ -a "$outFile" ]]; then
 	if [ $w ]; then
-		read -p "File '$outFile' will be written over. Would you like to continue?(n) " yn
+		printf "${lih}build: ${bwr}File '$outFile' will be written over. Would you like to continue?(n) "
+		read yn
 		case $yn in
 			[Yy]*)
-				printf "Removing '$outFile'..."
+				printf  "${lih}build: ${std}Removing '$outFile'..."
 				rm $outFile
-				printf " Done\n"
+				printf " ${aff}Done\n"
 				;;
 			[Nn]*)
-				printf "Alright, stopping everything.. Done\n"
-				exit 0
+				printf "${lih}build: ${std}Alright, stopping everything... ${aff}Done\n"
+				exit 2
 				;;
 			*)
-				printf "Alright, stopping everything... Done\n"
-				exit 0
+				printf "${lih}build: ${std}Alright, stopping everything... ${aff}Done\n"
+				exit 2
 				;;
 		esac
 	else
-		printf "Error: File '$outFile' already exists\n"
-		printf "       Try running with the --write or -w flag to write over existing files\n"
-		exit 4
+		echo -e "${lih}build: ${err}File '$outFile' already exists"
+		echo -e "${lih}build: ${err}    Try running with the --write or -w flag to write over existing files"
+		exit 7
 	fi
 fi
 
 # Set up the directory and add the __main__.py
-printf "Creating temporary directory..."
+printf "${lih}build: ${std}Creating temporary directory..."
 dir=`mktemp -d -p $(pwd)`
 if [[ ! "$dir" ]]; then
-	printf "Error: Could not create temporary directory\n"
-	exit 1
+	printf "\n${lih}build: ${err}Could not create temporary directory"
+	exit 8
 fi
-printf " Done\n"
-printf "Gathering python files into the temporary directory..."
+printf " ${aff}Done\n"
+printf "${lih}build: ${std}Gathering python files into the temporary directory..."
 cp *.py $dir
-printf " Done\n"
+printf " ${aff}Done\n"
 cd $dir
-printf "Creating '__main__.py' file..."
+printf "${lih}build: ${std}Creating '__main__.py' file..."
 printf "import ava\nif __name__ == '__main__':\n\tava" > __main__.py
-printf " Done\n"
+printf " ${aff}Done\n"
 
 # Make the actual executable
-printf "Creating temporary zip file..."
+printf "${lih}build: ${std}Creating temporary zip file..."
 zipped=`mktemp -d -p $(dirname -- "$dir") --suffix=".zip"`
 if [[ ! "$zipped" ]]; then
-	printf "\nError: Could not create temporary zipped directory\n"
-	exit 1
+	printf "\n${lih}build: ${err}Could not create temporary zipped directory\n"
+	exit 9
 fi
-printf " Done\n"
+printf " ${aff}Done\n"
 # Remove the created directory - we just want the name and zip will make it
 rmdir $zipped
-printf "Zipping python files..."
+printf "${lih}build: ${std}Zipping python files..."
 zip -r $zipped * &> /dev/null && cd ..
-printf " Done\nMaking runnable '$outFile' from temporary zipped file..."
+printf " ${aff}Done\n${lih}build: ${std}Making runnable '$outFile' from temporary zipped file..."
 echo '#!/usr/bin/env python3' | cat - $zipped > $outFile
 chmod +x $outFile
-printf " Done\n"
+printf " ${aff}Done\n"
 
 # Clean up
-printf "Cleaning up temporary files..."
+printf "${lih}build: ${std}Cleaning up temporary files..."
 rm -rf $zipped
 rm -rf $dir
-printf " Done\n"
+printf " ${aff}Done\n"
 
-# Move the output to the /usr/local/tmp if indicated
+# Show the integrated or not messsages
 if [ $i ]; then
-	printf "Ava has been built successfully, and is now integrated with your system\n"
-	printf "The tool can now be run with the command $(basename -- $outFile)\n"
+	printf "${lih}build: ${aff}Ava has been built successfully, and is now integrated with your system\n"
+	printf "${lih}build: ${aff}The tool can now be run with the command ${cmd}$(basename -- $outFile)\n"
+	exit 0
 else
-	printf "Ava has been built successfully\n"
-	printf "Use the -i or --integrate flag to integrate the tool with your system\n"
+	printf "${lih}build: ${aff}Ava has been built successfully\n"
+	printf "${lih}build: ${std}Use the ${cmd}-i ${std}or ${cmd}--integrate ${std}flag to integrate the tool with your system\n"
+	exit 1
 fi

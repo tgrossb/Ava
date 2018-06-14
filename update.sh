@@ -14,14 +14,14 @@ getopt --test > /dev/null
 if [[ $? -ne 4 ]]; then
 	echo -e "${lih}updater: ${err}getopt --test failed"
 	echo -e "${lih}updater: ${err}I'd try just doing the commands yourself"
-	exit 1
+	exit 2
 fi
 
 OPTIONS=c:o:e:a:l:s:b:
 PARSED=$(getopt --options=$OPTIONS --name "$0" -- "$@")
 if [[ $? -ne 0 ]]; then
 	echo -e "${lih}updater: ${err}getopt error, I don't know what happened"
-	exit 2
+	exit 3
 fi
 eval set -- "$PARSED"
 
@@ -61,7 +61,7 @@ while true; do
 			;;
 		*)
 			echo -e "${lih}updater: ${err}I messed something up, let me know"
-			exit 3
+			exit 4
 			;;
 	esac
 done
@@ -70,7 +70,7 @@ done
 if [ "$EUID" -ne 0 ]; then
 	echo -e "${lih}updater: ${err}This script must be run with root access"
 	echo -e "${lih}updater: ${err}    /usr/local/bin requires root to write to"
-	exit 4
+	exit 5
 fi
 
 if [ -a "Ava" ]; then
@@ -81,38 +81,40 @@ if [ -a "Ava" ]; then
 			sudo rm -rf Ava
 			if [ $? -ne 0 ]; then
 				echo -e "${lih}updater: ${cmd}sudo rm -rf Ava ${err}failed with exit code $?"
-				exit 5
+				exit 6
 			fi
 			;;
 		[Nn]*)
-			exit 0
+			exit 1
 			;;
 		*)
-			exit 0
+			exit 1
 			;;
 	esac
 fi
 # GIT CLONE IS SO HARD TO DEAL WITH (it doesn't fully output when not to terminal)
-# NOT OUTPUTING A LINE HEADER FOR THIS
-#echo -e "${lih}updater: git:${out}"
-git clone https://gitlab.com/tgrossb87/Ava.git
+# NOT OUTPUTING FOR THIS
+printf "${lih}updater: ${cmd}git clone https://gitlab.com/tgrossb87/Ava.git ${std}... "
+git clone https://gitlab.com/tgrossb87/Ava.git 2> /dev/null
 if [ $? -ne 0 ]; then
-	echo -e "${lih}updater: ${cmd}git clone https://gitlab.com/tgrossb87/Ava.git ${err}failed with exit code $?"
-	exit 6
+	printf "${err}failed with exit code $?\n"
+	exit 7
+else
+	printf "${aff}Done\n"
 fi
-echo ""
 
 cd Ava
 if [ $? -ne 0 ]; then
 	echo -e "${lih}updater: ${cmd}cd Ava ${err}failed with exit code $?"
-	exit 7
+	exit 8
 fi
 
-cp ../build.sh .
-sudo ./build.sh -iw #|& while read r; do echo -e "${lih}updater: ${out}$r"; done
-if [ $? -ne 0 ]; then
-	echo "${lih}updater: ${cmd}sudo ./build.sh -iw ${err}failed with exit code $?"
-	exit 8
+sudo ./build.sh -iw
+if [ $? -eq 2 ]; then
+	exit 1
+elif [ $? -ne 0 ]; then
+	echo -e "${lih}updater: ${cmd}sudo ./build.sh -iw ${err}failed with exit code $?"
+	exit 9
 fi
 
 # Not going to check this one because it cannot fail
@@ -121,6 +123,6 @@ cd ..
 sudo rm -rf Ava #|& while read r; do echo -e "${lih}updater: ${out}$r"; done #awk '{echo -e "${lih}updater: ${out}$1"}'
 if [ $? -ne 0 ]; then
 	echo "${lih}updater: ${cmd}sudo rm -rf Ava ${err}failed with exit code $?"
-	exit 9
+	exit 10
 fi
 echo -e "${lih}updater: ${aff}Ava has been updated and rebuilt successfully"

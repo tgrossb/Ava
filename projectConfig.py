@@ -1,9 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ###  This is pretty repetative, refactor later  ###
 import utils
-import sys
 import os
-from collections import OrderedDict
 
 def makeProjectConfigFile(loc):
 	utils.out(utils.LINE_H, "ava: ", utils.STD_OUT, "Creating project configuration file at ", loc, softest=utils.Q)
@@ -66,8 +64,8 @@ def readProjectConfigs(loc):
 		at = os.path.relpath(os.path.normpath(os.path.join(loc, os.pardir, at)))
 		if not os.path.samefile('.', at):
 			utils.out(utils.LINE_H, "ava: ", utils.WARN, "Project configuration file ('" + loc + "') not in project home ('" + at + "')")
-	configs = OrderedDict()
-	configs[utils.PROJECT] = OrderedDict()
+	configs = {}
+	configs[utils.PROJECT] = {}
 	for param, value in utils.PROJECT_DEFAULTS[utils.PROJECT].items():
 		if value == None:
 			continue

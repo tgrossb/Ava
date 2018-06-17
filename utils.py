@@ -3,7 +3,6 @@ import subprocess
 import os
 import sys
 import configparser
-from collections import OrderedDict
 from datetime import datetime
 
 def booleanQuery(*question, default=True):
@@ -19,7 +18,7 @@ def booleanQuery(*question, default=True):
 		out(*question, prompt, end="")
 		choice = input().lower()
 		if default is not None and choice == '':
-			return valid[default]
+			return default
 		elif choice in valid:
 			return valid[choice]
 		else:

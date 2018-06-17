@@ -46,7 +46,7 @@ def build():
 		args.file = "ava"
 	if args.integrate:
 		utils.out(utils.LINE_H, "build: ", utils.AFFIRM, "Integrating Ava with your system")
-		if args.files:
+		if not args.file == "ava":
 			utils.out(utils.LINE_H, "build: ", utils.STD_OUT, "Ignoring file argument for integration")
 		args.file = "/usr/local/bin/ava"
 		checkForSudo()
@@ -68,7 +68,7 @@ def build():
 
 def checkForSudo():
 	if not os.getuid() == 0:
-		utils.out(utils.LINE_H, "build: ", utils.ERR, "Requires sudo to integrate Ava with your system")
+		utils.out(utils.LINE_H, "build: ", utils.ERR, "Run with root privileges to integrate Ava with your system")
 		utils.exit(out=False)
 
 
@@ -79,6 +79,8 @@ def checkForOverwrite(out, canOverwrite):
 			if write:
 				utils.out(utils.LINE_H, "build: ", utils.AFFIRM, "Removing '" + out + "'")
 				cleanUp(out)
+			else:
+				utils.exit(out=False)
 		else:
 			utils.out(utils.LINE_H, "build: ", utils.ERR, "File '" + out + "' already exists")
 			utils.out(utils.LINE_H, "build: ", utils.ERR, "    Try running with the ", utils.CMD, "--overwrite", utils.ERR, " or ", utils.CMD, "-o", utils.ERR, " flag to write over the existing file")

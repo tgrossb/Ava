@@ -4,6 +4,21 @@ uses .ini files for configuration, making them far more human readable and easil
 is a big step towards mass use as you don't need to write the skeleton of a configuration file yourself.  Eventually, I want the make project configuration method to create more than just the basic structure 
 of a config file by searching the child directories to find libraries, files to be compiled, and the runnable class.
 
+## Dependencies ##
+Before downloading and building this tool, some dependencies need to be installed.<br/>
+Git:
+```bash
+sudo apt-get install git
+```
+Python 3 and pip3:
+```bash
+sudo apt-get install python3 python3-pip
+```
+<a href="https://docs.python.org/3/library/configparser.html">Config Parser</a>
+```bash
+pip3 install configparser
+```
+
 ## Building ##
 To build this tool, you can use the simple bash script I wrote to create a single runnable. Or, of course, if you're hard core you can build it yourself. Both options 
 are here.<br/>
@@ -11,7 +26,7 @@ are here.<br/>
 ```bash
 git clone https://gitlab.com/tgrossb87/Ava.git
 cd Ava
-sudo ./build -iw
+sudo ./build.py -io
 ```
 This will use the `build` tool to compile all of the python files into a zipped folder and export it as a runnable to `/usr/local/bin/ava` so the command `ava` can be used from anywhere.<br/>
 After this, you can remove the repository if you would like:

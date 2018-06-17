@@ -20,13 +20,6 @@ def parseArgs():
 	return argParser.parse_args()
 
 
-#def execute(cmd, stdout=SubProcess.PIPE, stderr=SubProcess.STDOUT, stdin=None, shell=True):
-#	out = SubProcess.Popen(cmd, stdout=stdout, stderr=stderr, stdin=stdin, universal_newlines=True, shell=shell)
-#	stream = out.stdout
-#	for line in iter(stream.readline, ""):
-#		yield line
-#	stream.close()
-
 
 def update():
 	utils.out(utils.LINE_H, "ava: ", utils.STD_OUT, "Updating the ava tool")

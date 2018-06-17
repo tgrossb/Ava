@@ -1,9 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ###  This is pretty repetative, refactor later  ###
 import utils
-import sys
 import os
-import argparse
 
 def repairToolConfigFile():
 	if not os.path.exists(utils.TOOL_CONFIG_PATH):

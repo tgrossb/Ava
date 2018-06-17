@@ -1,9 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ###  This is pretty repetative, refactor later  ###
 import utils
-import sys
 import os
-from collections import OrderedDict
 
 def makeProjectConfigFile(loc):
 	utils.out(utils.LINE_H, "ava: ", utils.STD_OUT, "Creating project configuration file at ", loc, softest=utils.Q)
@@ -59,15 +57,15 @@ def readProjectConfigs(loc):
 		utils.out(utils.LINE_H, "ava: ", utils.ERR, "Project configuration file missing parameter '" + utils.HOME + "'", softest=utils.S)
 		utils.exit()
 	else:
-		at = config.get(utils.PROJECT, utils.HOME)
-		if utils.HOME_SYM in at:
+		rawAt = config.get(utils.PROJECT, utils.HOME)
+		if utils.HOME_SYM in rawAt:
 			utils.out(utils.LINE_H, "ava: ", utils.ERR, "Project home parameter contains home symbol (" + utils.HOME_SYM + ")", softest=utils.S)
 			utils.exit()
-		at = os.path.relpath(os.path.normpath(os.path.join(loc, os.pardir, at)))
-		if not os.path.samefile('.', at):
+		at = os.path.relpath(os.path.normpath(os.path.join(loc, os.pardir, rawAt)))
+		if not os.path.normpath(os.path.join(loc, os.pardir)) == at:
 			utils.out(utils.LINE_H, "ava: ", utils.WARN, "Project configuration file ('" + loc + "') not in project home ('" + at + "')")
-	configs = OrderedDict()
-	configs[utils.PROJECT] = OrderedDict()
+	configs = {}
+	configs[utils.PROJECT] = {}
 	for param, value in utils.PROJECT_DEFAULTS[utils.PROJECT].items():
 		if value == None:
 			continue

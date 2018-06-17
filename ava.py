@@ -16,15 +16,9 @@ def parseArgs():
 	argParser.add_argument('-s', '--silent', action='store_true', help='enable silent output')
 	argParser.add_argument('-r', '--repair-tool', action='store_true', help='repair the configuration file for the tool by filling in any missing or incomplete sections')
 	argParser.add_argument('-u', '--update', action='store_true', help='update the tool to the latest release version')
+	argParser.add_argument('parameters', nargs='*', help='a list of parameters to pass to the java command')
 	return argParser.parse_args()
 
-
-#def execute(cmd, stdout=SubProcess.PIPE, stderr=SubProcess.STDOUT, stdin=None, shell=True):
-#	out = SubProcess.Popen(cmd, stdout=stdout, stderr=stderr, stdin=stdin, universal_newlines=True, shell=shell)
-#	stream = out.stdout
-#	for line in iter(stream.readline, ""):
-#		yield line
-#	stream.close()
 
 
 def update():
@@ -52,7 +46,7 @@ def update():
 	utils.out(utils.LINE_H, "ava: ", utils.AFFIRM, "Ava has been successfully updated!")
 
 
-def ava(configLoc):
+def ava(configLoc, javaParams):
 	projectConfig = ProjectConfig.readProjectConfigs(configLoc)
 	dest = projectConfig[utils.PROJECT][utils.DEST]
 	cp = dest
@@ -71,7 +65,7 @@ def ava(configLoc):
 	else:
 		utils.exit()
 
-	java = ["java", "-cp", cp, projectConfig[utils.PROJECT][utils.RUN]]
+	java = ["java", "-cp", cp, projectConfig[utils.PROJECT][utils.RUN], *javaParams]
 	javaString = " ".join(java)
 	utils.out(utils.LINE_H, "ava: ", utils.CMD, javaString, softest=utils.Q)
 	exceptionMatcher = re.compile(r"^.*Exception[^\n]+(\s+at [^\n]+)*\s*\Z", re.MULTILINE | re.DOTALL)
@@ -131,7 +125,7 @@ def main(args):
 		utils.out(utils.LINE_H, "ava: ", utils.CMD, " ".join(edit), softest=utils.Q)
 		SubProcess.call(edit)
 		utils.exit()
-	ava(projectConfigLoc)
+	ava(projectConfigLoc, args.parameters)
 
 try:
 	args = parseArgs()

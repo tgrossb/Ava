@@ -3,8 +3,23 @@ This is unpackaged source for the Ava Compiling and Executing tool, or ava for s
 compiling multiple files organized into packages and is able to export compiled files into seperate directories.  Feel free to download and use or modify this tool for easy use.
 
 ## Installing ##
-Installing this tool is fairly easy. All you need to do is clone or download this repository, and then follow the instructions in the Building section of the README. Eventually, I'll setup an even easier way 
+Installing this tool is fairly easy. All you need to do is download the dependencies and then follow the instructions in the Building section of the README. Eventually, I'll setup an even easier way 
 to install and build.
+
+## Dependencies ##
+Before downloading and building this tool, some dependencies need to be installed.<br/>
+Git:
+```bash
+sudo apt-get install git
+```
+Python 3 and pip3:
+```bash
+sudo apt-get install python3 python3-pip
+```
+<a href="https://docs.python.org/3/library/configparser.html">Config Parser</a>
+```bash
+pip3 install configparser
+```
 
 ## Building ##
 To build this tool, you can use the simple bash script I wrote to create a single runnable. Or, of course, if you're hard core you can build it yourself. Both options 
@@ -13,7 +28,7 @@ are here.<br/>
 ```bash
 git clone https://gitlab.com/tgrossb87/Ava.git
 cd Ava
-sudo ./build -iw
+sudo ./build.py -io
 ```
 This will use the `build` tool to compile all of the python files into a zipped folder and export it as a runnable to `/usr/local/bin/ava` so the command `ava` can be used from anywhere.<br/>
 After this, you can remove the repository if you would like:
@@ -57,6 +72,7 @@ to your `PATH` variable. I would recommend using the tool though, its much easie
 - [X] Error highlighting in `java` command output
 - [X] Integrated project configuration file editing
 - [ ] Smart compiling to avoid repeased compiling for large projects
+- [X] Supports parameters for the Java command
 
 ## Versions ##
 Developement has been split into two streams, one is a bash script implementation, and the other is written in python.  The bash version is currently functional, but there are still functions I would like to 

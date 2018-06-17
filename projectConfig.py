@@ -62,7 +62,7 @@ def readProjectConfigs(loc):
 			utils.out(utils.LINE_H, "ava: ", utils.ERR, "Project home parameter contains home symbol (" + utils.HOME_SYM + ")", softest=utils.S)
 			utils.exit()
 		at = os.path.relpath(os.path.normpath(os.path.join(loc, os.pardir, at)))
-		if not os.path.samefile('.', at):
+		if not os.path.samefile(os.path.basename(loc), at):
 			utils.out(utils.LINE_H, "ava: ", utils.WARN, "Project configuration file ('" + loc + "') not in project home ('" + at + "')")
 	configs = {}
 	configs[utils.PROJECT] = {}

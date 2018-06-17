@@ -90,7 +90,7 @@ def checkForOverwrite(out, canOverwrite):
 def gatherPythonFiles(tmp):
 	cp = ["cp", "*.py", tmp]
 	utils.out(utils.LINE_H, "build: ", utils.STD_OUT, "Gathering python files into the temporary directory")
-	execute(cp, shell=True)
+	executeChecked(cp, shell=True)
 
 
 def createMain(tmp):

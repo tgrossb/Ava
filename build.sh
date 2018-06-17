@@ -189,6 +189,7 @@ if [[ ! "$zipped" ]]; then
 	exit 9
 fi
 printf " ${aff}Done\n"
+exit 0
 # Remove the created directory - we just want the name and zip will make it
 rmdir $zipped
 printf "${lih}build: ${std}Zipping python files..."

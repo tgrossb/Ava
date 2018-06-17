@@ -6,6 +6,26 @@ import configparser
 from collections import OrderedDict
 from datetime import datetime
 
+def booleanQuery(*question, default=True):
+	valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
+	if default is None:
+		prompt = " [y/n] "
+	elif default:
+		prompt = " [Y/n] "
+	else:
+		prompt = " [y/N] "
+
+	while True:
+		out(*question, prompt, end="")
+		choice = input().lower()
+		if default is not None and choice == '':
+			return valid[default]
+		elif choice in valid:
+			return valid[choice]
+		else:
+			out("\r", end="")
+
+
 def getConfigParser():
 	parser = configparser.ConfigParser(allow_no_value = True, delimiters = ('='))
 	parser.optionxform = str
@@ -29,6 +49,8 @@ def out(*args, end="\n", softest = 0):
 
 
 def execute(cmd, stdout=subprocess.PIPE, stderr=None, shell=False):
+	if shell:
+		cmd = " ".join(cmd)
 	out = subprocess.Popen(cmd, stdout=stdout, stderr=stderr, universal_newlines=True, shell=shell)
 	stream = out.stdout
 	if stdout == None and not stderr == None:
@@ -87,8 +109,9 @@ def prependToFile(startLine, lines, fileLocation):
 		file.write("\t" + lines.replace("\n", "\n\t").rstrip() + "\n\n" + content)
 
 
-def exit():
-	out(HF, "Thank you for using the Ava Compiling and Executing Tool")
+def exit(out=True):
+	if out:
+		out(HF, "Thank you for using the Ava Compiling and Executing Tool")
 	sys.exit()
 
 

@@ -23,7 +23,7 @@ def executeChecked(cmd, stdout=None, stdin=None, shell=False, out=True, cwd=None
 		utils.out(utils.LINE_H, "build: ", utils.CMD, cmdName.capitalize(), utils.ERR, " finished with non-zero exit code (" + str(popen.returncode) + ") and message:")
 		for line in popen.stderr:
 			utils.out(utils.LINE_H, "build: \t", utils.ERR, line.decode("utf-8"), end="")
-		utils.exit(out=False)
+		utils.exit(silent=True)
 	return popen
 
 
@@ -69,7 +69,7 @@ def build():
 def checkForSudo():
 	if not os.getuid() == 0:
 		utils.out(utils.LINE_H, "build: ", utils.ERR, "Run with root privileges to integrate Ava with your system")
-		utils.exit(out=False)
+		utils.exit(silent=True)
 
 
 def checkForOverwrite(out, canOverwrite):
@@ -80,11 +80,11 @@ def checkForOverwrite(out, canOverwrite):
 				utils.out(utils.LINE_H, "build: ", utils.AFFIRM, "Removing '" + out + "'")
 				cleanUp(out)
 			else:
-				utils.exit(out=False)
+				utils.exit(silent=True)
 		else:
 			utils.out(utils.LINE_H, "build: ", utils.ERR, "File '" + out + "' already exists")
 			utils.out(utils.LINE_H, "build: ", utils.ERR, "    Try running with the ", utils.CMD, "--overwrite", utils.ERR, " or ", utils.CMD, "-o", utils.ERR, " flag to write over the existing file")
-			utils.exit(out=False)
+			utils.exit(silent=True)
 
 
 def gatherPythonFiles(tmp):
@@ -100,7 +100,7 @@ def createMain(tmp):
 			file.write("import ava\nif __name == '__main__':\n\tava")
 	except EnvironmentError:
 		utils.out(utils.LINE_H, "build: ", utils.ERR, "Could not create/write to '__main__.py' file")
-		utils.exit(out=False)
+		utils.exit(silent=True)
 
 
 def zip(zipLoc, tmp):

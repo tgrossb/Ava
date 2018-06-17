@@ -108,8 +108,8 @@ def prependToFile(startLine, lines, fileLocation):
 		file.write("\t" + lines.replace("\n", "\n\t").rstrip() + "\n\n" + content)
 
 
-def exit(out=True):
-	if out:
+def exit(silent=False):
+	if not silent:
 		out(HF, "Thank you for using the Ava Compiling and Executing Tool")
 	sys.exit()
 

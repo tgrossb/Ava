@@ -6,7 +6,10 @@ import javax.swing.JFrame;
 
 public class Main extends JFrame {
 	public static void main(String[] args){
-		System.out.println("Main func");
+		String s = "Nothing";
+		if (args.length > 0)
+			s = args[0];
+		System.out.println("Main func got: " + s);
 		new Utils();
 	}
 

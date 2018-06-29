@@ -47,10 +47,12 @@ def out(*args, end="\n", softest = 0):
 	print(s, end=end)
 
 
-def execute(cmd, stdout=subprocess.PIPE, stderr=None, shell=False):
-	if shell:
+def execute(cmd, stdout=subprocess.PIPE, stderr=None, shell=False, cwd=None):
+	if not cwd == None:
+		shell = True
+	if shell and not isinstance(cmd, str):
 		cmd = " ".join(cmd)
-	out = subprocess.Popen(cmd, stdout=stdout, stderr=stderr, universal_newlines=True, shell=shell)
+	out = subprocess.Popen(cmd, stdout=stdout, stderr=stderr, universal_newlines=True, shell=shell, cwd=cwd)
 	stream = out.stdout
 	if stdout == None and not stderr == None:
 		stream = out.stderr
@@ -119,12 +121,12 @@ def inverseEscape(string):
 	return byteArr.decode("unicode_escape")
 
 
-def replaceSymbol(sym, val, string):
+def replaceSymbol(sym, val, string, start=os.curdir):
 	if string.startswith(sym):
 #		print("Replacing '" + sym + "' with '" + val + "' in '" + string + "'  ==>  Joining '" + val + "' and '" + string[1:] + "'  ==>  Norming '" + os.path.join(val, string[1:]) + "'")
-		return os.path.relpath(os.path.normpath(val + "/" + string[1:]))
+		return os.path.relpath(os.path.normpath(val + "/" + string[1:]), start=start)
 	elif sym in string:
-		out(LINE_H, "DEVELOPER ERROR: ", ERR, "Replace symbol gave out, have fun figuring this out, idiot")
+		out(LINE_H, "DEVELOPER ERROR: ", ERR, "Replace symbol finally gave out, have fun figuring this out, idiot")
 		exit()
 	return string
 
@@ -151,6 +153,7 @@ CP = 'class path'
 DEST = 'compiled destination'
 RUN = 'runnable file'
 COMPILE = 'compile files'
+REL_HOME = 'dont display'
 
 PROJECT_DEFAULTS = {
 	PROJECT: {

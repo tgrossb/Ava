@@ -43,7 +43,7 @@ def update():
 #	utils.out(utils.LINE_H, "ava: ", utils.CMD, clean)#" ".join(clean))
 #	for line in utils.execute(clean, stderr=SubProcess.STDOUT, shell=True):
 #		utils.out(utils.LINE_H, "clean: ", utils.OUT, line, end="")
-	utils.out(utils.LINE_H, "ava: ", utils.AFFIRM, "Ava has been successfully updated!")
+#	utils.out(utils.LINE_H, "ava: ", utils.AFFIRM, "Ava has been successfully updated!")
 
 
 def ava(configLoc, javaParams):
@@ -53,11 +53,13 @@ def ava(configLoc, javaParams):
 	for path in projectConfig[utils.PROJECT][utils.CP]:
 		cp += ":" + path
 	compileFiles = projectConfig[utils.PROJECT][utils.COMPILE]
+	home = projectConfig[utils.PROJECT][utils.REL_HOME]
 
-	javac = ["javac", "-cp", cp, "-d", dest, *compileFiles]
-	utils.out(utils.LINE_H, "ava: ", utils.CMD, " ".join(javac), softest=utils.Q)
+	utils.out(utils.LINE_H, "ava: ", utils.AFFIRM, "Using subterminal from location '" + home + "' for compiling and executing", softest=utils.Q)
+	javac = "javac -cp " + cp + " -d " + dest + " " + " ".join(compileFiles)
+	utils.out(utils.LINE_H, "ava: ", utils.CMD, javac, softest=utils.Q)
 	errLines = 0
-	for line in utils.execute(javac, stdout=None, stderr=SubProcess.PIPE):
+	for line in utils.execute(javac, stdout=None, stderr=SubProcess.PIPE, cwd=home):
 		utils.out(utils.LINE_H, "javac: ", utils.ERR, line, end="", softest=utils.S)
 		errLines += 1
 	if errLines == 0:
@@ -65,13 +67,12 @@ def ava(configLoc, javaParams):
 	else:
 		utils.exit()
 
-	java = ["java", "-cp", cp, projectConfig[utils.PROJECT][utils.RUN], *javaParams]
-	javaString = " ".join(java)
-	utils.out(utils.LINE_H, "ava: ", utils.CMD, javaString, softest=utils.Q)
+	java = "java -cp " + cp + " " + projectConfig[utils.PROJECT][utils.RUN] + " " + " ".join(javaParams)
+	utils.out(utils.LINE_H, "ava: ", utils.CMD, java, softest=utils.Q)
 	exceptionMatcher = re.compile(r"^.*Exception[^\n]+(\s+at [^\n]+)*\s*\Z", re.MULTILINE | re.DOTALL)
 	runningLine = ""
-	utils.openLog(configLoc, projectConfig[utils.PROJECT][utils.HOME], javaString)
-	for line in utils.execute(java, stderr=SubProcess.STDOUT):
+	utils.openLog(configLoc, projectConfig[utils.PROJECT][utils.HOME], java)
+	for line in utils.execute(java, stderr=SubProcess.STDOUT, cwd=home):
 		runningLine += line
 		outputColor = utils.ERR if exceptionMatcher.match(runningLine) else utils.OUT
 		utils.out(utils.LINE_H, "java: ", outputColor, line, end="", softest=utils.S)

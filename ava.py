@@ -53,11 +53,13 @@ def ava(configLoc, javaParams):
 	for path in projectConfig[utils.PROJECT][utils.CP]:
 		cp += ":" + path
 	compileFiles = projectConfig[utils.PROJECT][utils.COMPILE]
+	home = projectConfig[utils.PROJECT][utils.HOME]
 
+	utils.out(utils.LINE_H, "ava: ", utils.AFFIRM, "Using subterminal from location '" + home + "'")
 	javac = ["javac", "-cp", cp, "-d", dest, *compileFiles]
 	utils.out(utils.LINE_H, "ava: ", utils.CMD, " ".join(javac), softest=utils.Q)
 	errLines = 0
-	for line in utils.execute(javac, stdout=None, stderr=SubProcess.PIPE):
+	for line in utils.execute(javac, stdout=None, stderr=SubProcess.PIPE, cwd=home, shell=True):
 		utils.out(utils.LINE_H, "javac: ", utils.ERR, line, end="", softest=utils.S)
 		errLines += 1
 	if errLines == 0:
@@ -71,7 +73,7 @@ def ava(configLoc, javaParams):
 	exceptionMatcher = re.compile(r"^.*Exception[^\n]+(\s+at [^\n]+)*\s*\Z", re.MULTILINE | re.DOTALL)
 	runningLine = ""
 	utils.openLog(configLoc, projectConfig[utils.PROJECT][utils.HOME], javaString)
-	for line in utils.execute(java, stderr=SubProcess.STDOUT):
+	for line in utils.execute(java, stderr=SubProcess.STDOUT, cwd=home, shell=True):
 		runningLine += line
 		outputColor = utils.ERR if exceptionMatcher.match(runningLine) else utils.OUT
 		utils.out(utils.LINE_H, "java: ", outputColor, line, end="", softest=utils.S)

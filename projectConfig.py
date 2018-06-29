@@ -76,13 +76,13 @@ def readProjectConfigs(loc):
 		if utils.ALLOW_MULTIPLE_VALUES[param]:
 			userVal = userVal.splitlines()
 			for c in range(len(userVal)):
-				userVal[c] = utils.replaceSymbol(utils.HOME_SYM, at, userVal[c])
+				userVal[c] = utils.replaceSymbol(utils.HOME_SYM, at, userVal[c], start=at)
 				utils.out(utils.LINE_H, "ava: ", utils.STD_OUT, "Adding " + userVal[c] + " as a value for parameter '" + param + "'", softest=utils.N)
 		elif "\n" in userVal:
 			utils.out(utils.LINE_H, "ava: ", utils.ERR, "Project configuration file includes multiple values for single value parameter '" + param + "'", softest=utils.S)
 			utils.exit()
 		else:
-			userVal = utils.replaceSymbol(utils.HOME_SYM, at, userVal)
+			userVal = utils.replaceSymbol(utils.HOME_SYM, at, userVal, start=at)
 			utils.out(utils.LINE_H, "ava: ", utils.STD_OUT, "Recognized " + userVal + " as value for parameter '" + param + "'", softest=utils.N)
 		configs[utils.PROJECT][param] = userVal
 	return configs

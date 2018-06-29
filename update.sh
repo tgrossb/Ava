@@ -109,11 +109,9 @@ if [ $? -ne 0 ]; then
 	exit 8
 fi
 
-sudo ./build.sh -iw
-if [ $? -eq 2 ]; then
-	exit 1
-elif [ $? -ne 0 ]; then
-	echo -e "${lih}updater: ${cmd}sudo ./build.sh -iw ${err}failed with exit code $?"
+sudo ./build.py -io
+if [ $? -ne 0 ]; then
+	echo -e "${lih}updater: ${cmd}sudo ./build.py -io ${err}failed with exit code $?"
 	exit 9
 fi
 

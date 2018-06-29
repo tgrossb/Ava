@@ -85,6 +85,7 @@ def readProjectConfigs(loc):
 			userVal = utils.replaceSymbol(utils.HOME_SYM, at, userVal, start=at)
 			utils.out(utils.LINE_H, "ava: ", utils.STD_OUT, "Recognized " + userVal + " as value for parameter '" + param + "'", softest=utils.N)
 		configs[utils.PROJECT][param] = userVal
+	configs[utils.PROJECT][utils.REL_HOME] = at
 	return configs
 
 

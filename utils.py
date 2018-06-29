@@ -48,7 +48,9 @@ def out(*args, end="\n", softest = 0):
 
 
 def execute(cmd, stdout=subprocess.PIPE, stderr=None, shell=False, cwd=None):
-	if shell:
+	if not cwd == None:
+		shell = True
+	if shell and not isinstance(cmd, str):
 		cmd = " ".join(cmd)
 	out = subprocess.Popen(cmd, stdout=stdout, stderr=stderr, universal_newlines=True, shell=shell, cwd=cwd)
 	stream = out.stdout
@@ -151,6 +153,7 @@ CP = 'class path'
 DEST = 'compiled destination'
 RUN = 'runnable file'
 COMPILE = 'compile files'
+REL_HOME = 'dont display'
 
 PROJECT_DEFAULTS = {
 	PROJECT: {

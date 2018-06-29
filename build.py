@@ -62,8 +62,8 @@ def build():
 	zip(zipped, tmp)
 	addShebang(zipped, args.file)
 	makeExecutable(args.file)
-	utils.out(utils.LINE_H, "build: ", utils.STD_OUT, "Cleaning up temporary directories")
-	cleanUp(tmp, zipped)
+	utils.out(utils.LINE_H, "build: ", utils.STD_OUT, "Cleaning up temporary directories and pycache")
+	cleanUp(tmp, zipped, "__pycache__")
 
 
 def checkForSudo():

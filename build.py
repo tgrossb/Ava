@@ -1,13 +1,16 @@
-#!/usr/bin/env python3
 import utils
 import argparse as ArgParser
 import tempfile
 import os
 import subprocess
 import sys
+import pip
+from contextlib import redirect_stdout
+import io
 
 tmpLoc = tempfile.mkdtemp(dir=".")
 zippedLoc = tempfile.mkdtemp(suffix=".zip", dir=".")
+minPythonVersion = (3, 6)
 
 
 def parseArgs():
@@ -48,13 +51,13 @@ def executeChecked(cmd, stdout=None, stdin=None, out=True, cwd=None, errorCode=N
 	if not popen.returncode == 0:
 		fs = cmd.index(" ")
 		cmdName = cmd[:fs]
-		cmd = cmd[:fs]
+		cmd = cmd[fs+1:]
 		if cmdName == "sudo":
 			# Go to the next space
 			cmdName = cmd[:cmd.index(" ")]
 		utils.out(utils.LINE_H, "build: ", utils.CMD, cmdName.capitalize(), utils.ERR, " finished with non-zero exit code (" + str(popen.returncode) + ") and message:")
 		for line in popen.stderr:
-			utils.out(utils.LINE_H, "build: \t", utils.ERR, line.decode("utf-8"), end="")
+			utils.out(utils.LINE_H, "build: " + cmdName + ": ", utils.ERR, line.decode("utf-8"), end="")
 		exit(errorCode)
 	return popen
 
@@ -76,6 +79,30 @@ def execute(cmd, stdout=None, stderr=None, stdin=None, shell=False, out=True, cw
 	popen.wait()
 	return popen
 
+
+def versionStr(tupledVersion):
+	ver = str(tupledVersion[0]) + "." + str(tupledVersion[1])
+	if len(tupledVersion) > 2:
+		ver += "." + str(tupledVersion[2])
+	if len(tupledVersion) > 3:
+		ver += tupledVersion[3][0]
+	if len(tupledVersion) > 4:
+		ver += str(tupledVersion[4])
+	return ver
+
+
+def installDependencies():
+	if sys.version_info < minPythonVersion:
+		utils.out(utils.LINE_H, "build: ", utils.ERR, "It is required that you use Python " + versionStr(minPythonVersion) +
+					" or higher to build and run Ava (built with version " + versionStr(sys.version_info) + ")")
+		exit(12)
+
+	f = io.StringIO()
+	with redirect_stdout(f):
+		pip.main(['install', 'configparser'])
+	for line in f.getvalue().split("\n"):
+		if not line == "":
+			utils.out(utils.LINE_H, "build: pip: ", utils.OUT, line)
 
 def build(args):
 	if not args.file:
@@ -147,7 +174,8 @@ def zip(zipLoc, tmp):
 
 
 def addShebang(zip, out):
-	ECHO = ("echo '#!/usr/bin/env python3'", 8)
+	version = str(sys.version_info[0]) + "." + str(sys.version_info[1])
+	ECHO = ("echo '#!/usr/bin/env python" + version + "'", 8)
 	CAT = ("cat - " + zip + " > " + out, 9)
 	utils.out(utils.LINE_H, "build: ", utils.STD_OUT, "Adding shebang to the zip")
 	echod = executeChecked(ECHO, stdout=subprocess.PIPE)
@@ -178,6 +206,7 @@ def main():
 	utils.outputLevel = 0
 	args = parseArgs()
 	if not args.error:
+		installDependencies()
 		build(args)
 		exit(0)
 	printErrors(args.error)
@@ -196,6 +225,7 @@ errorMessages = {
 	8: "Could not echo a line, more info in the command's output",
 	9: "Could not cat to a file with echo input, more info in the command's output",
 	10: "Could not make output file executable, more info in the command's output",
-	11: "Could not remove file, more info in the command's output"
+	11: "Could not remove file, more info in the command's output",
+	12: "Python version out of date (< Python " + versionStr(minPythonVersion) + ")"
 }
 main()

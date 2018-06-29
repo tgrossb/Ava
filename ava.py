@@ -6,6 +6,7 @@ import os
 import argparse as ArgParser
 import subprocess as SubProcess
 import re
+import sys
 
 def parseArgs():
 	argParser = ArgParser.ArgumentParser(prog='ava', description=utils.TOOL_DESCRIPTION, epilog=utils.TOOL_EPILOG)
@@ -23,9 +24,11 @@ def parseArgs():
 
 def update():
 	utils.out(utils.LINE_H, "ava: ", utils.STD_OUT, "Updating the ava tool")
-	updater = ["sudo", "./update.sh"]
-	utils.out(utils.LINE_H, "ava: ", utils.CMD, " ".join(updater))
-	SubProcess.call(updater)
+	utils.out(utils.LINE_H, "ava: ", utils.ERR, "Ha, you thought")
+#	updater = ["sudo", "./update.sh"]
+#	utils.out(utils.LINE_H, "ava: ", utils.CMD, " ".join(updater))
+#	SubProcess.call(updater)
+
 #	for line in utils.execute(updater, stderr=SubProcess.STDOUT, shell=True):
 #		utils.out(utils.LINE_H, "update: ", utils.OUT, line, end="")
 #	git = ["git", "clone", "https://gitlab.com/tgrossb87/Ava.git"]

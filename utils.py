@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import subprocess
 import os
 import sys
@@ -36,7 +35,9 @@ def out(*args, end="\n", softest = 0):
 		return
 	s = ""
 	for arg in args:
-		if not toolConfig == None and arg in TOOL_DEFAULTS:
+		if arg == PROG_ERR:
+			s += inverseEscape(escaped)
+		elif not toolConfig == None and arg in TOOL_DEFAULTS:
 			escaped = str((BOLDER if configs[arg][BOLD] else NORMALIZER) + toolConfig[arg][COLOR])
 			s += inverseEscape(escaped)
 		elif arg in TOOL_DEFAULTS:
@@ -153,7 +154,7 @@ CP = 'class path'
 DEST = 'compiled destination'
 RUN = 'runnable file'
 COMPILE = 'compile files'
-REL_HOME = 'dont display'
+REL_HOME = 'relhome'
 
 PROJECT_DEFAULTS = {
 	PROJECT: {
@@ -193,6 +194,7 @@ LINE_H = 'line header'
 STD_OUT = 'standard output'
 LOG_NAME = 'log file name'
 LOGGING = 'logging type'
+PROG_ERR = '\033[21m\\033[1m\\033[5m\\033[41m'
 
 NORMALIZER = '\\033[21m'
 BOLDER = NORMALIZER + '\\033[1m'

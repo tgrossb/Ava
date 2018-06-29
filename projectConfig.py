@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 ###  This is pretty repetative, refactor later  ###
 import utils
 import os

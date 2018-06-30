@@ -3,8 +3,9 @@ This is unpackaged source for the Ava Compiling and Executing tool, or ava for s
 compiling multiple files organized into packages and is able to export compiled files into seperate directories.  Feel free to download and use or modify this tool for easy use.
 
 ## Installing ##
-Installing this tool is fairly easy. All you need to do is download the dependencies and then follow the instructions in the Building section of the README. Eventually, I'll setup an even easier way 
-to install and build.
+Installing this tool is fairly easy. All you need to do is [download the dependencies](#dependencies) and then follow the instructions in 
+the [Building](#building) section of the README. Eventually, I'll setup an even easier way to install and build.</br>
+After it is installed, try going to the test directory to take Ava for a spin!
 
 ## Dependencies ##
 Before downloading and building this tool, some dependencies need to be installed.<br/>

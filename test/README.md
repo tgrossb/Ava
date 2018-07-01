@@ -2,95 +2,97 @@
 Congrats, you have installed Ava.  I've set up a little dummy directory and this tutorial so you can get comfortable with the commands.
 
 # Table of contents
-&nbsp;1. [The Tool configuration file](#the-tool-configuration-file)  
-&nbsp;&nbsp;&nbsp;1.1. [What is it](#what-is-it)  
-&nbsp;&nbsp;&nbsp;1.2. [Where is it](#tool-configuration-file#where-is-it)  
-&nbsp;&nbsp;&nbsp;1.3. [Parameters](#parameters)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.1. [header/footer](#headerfooter)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.2. [command](#command)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.3. [command output](#command-output)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.4. [warning](#warning)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.5. [background Warning](#background-warning)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.6. [error](#error)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.7. [affirmation](#affirmation)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.8. [line header](#line-header)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.9. [standard Output](#standard-output)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.10. [log file name](#log-file-name)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.11. [logging type](#logging-type)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.12. [project configuration file](#project-configuration-file)  
-&nbsp;2. [Project configuration files](#project-configuration-files)  
+&nbsp;1. [The Tool Configuration File](#tool-cfg)  
+&nbsp;&nbsp;&nbsp;1.1. [What is it](#tool-cfg-what)  
+&nbsp;&nbsp;&nbsp;1.2. [Where is it](#tool-cfg-where)  
+&nbsp;&nbsp;&nbsp;1.3. [Parameters](#tool-cfg-params)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.1. [header/footer](#tool-cfg-hf)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.2. [command](#tool-cfg-cmd)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.3. [command output](#tool-cfg-cmd-out)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.4. [warning](#tool-cfg-warn)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.5. [background Warning](#tool-cfg-bwarn)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.6. [error](#tool-cfg-err)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.7. [affirmation](#tool-cfg-affirm)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.8. [line header](#tool-cfg-lineh)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.9. [standard Output](#tool-cfg-stdout)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.10. [log file name](#tool-cfg-log-name)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.11. [logging type](#tool-cfg-log-type)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.12. [project configuration file](#tool-cfg-proj-cfg)  
+&nbsp;2. [Project Configuration Files](#project-configuration-files)  
 &nbsp;&nbsp;&nbsp;2.1. [What are they](#what-are-they)  
 &nbsp;&nbsp;&nbsp;2.2. [What do they mean](#what-do-they-mean)  
 &nbsp;3. [Commands](#commands)
+&nbsp;4. [Ini Files](#ini-files)
+&nbsp;5. [Bash Colors](#bash-colors)
 
-# The Tool Configuration File
+# The Tool Configuration File<a name="tool-cfg"></a>
 
-## What is it
-  The tool configuration file is an [ini](#ini) file that defines the style and general configuration of the tool.  This file is populated with default values for output [colors](#colors), 
+## What is it<a name="tool-cfg-what"></a>
+  The tool configuration file is an [ini](#ini) file that defines the style and general configuration of the tool.  This file is populated with default values for [output colors](#bash-colors), 
 logging options, and general parameters about [project configuration files](#project-configuration-files).  By default, it looks like [this](.ava.ini).<br/><br/>
   Parameters in the tool configuration file mostly control the style of the output of commands.  If you don't like the color of a set of outputs, you can easily redefine it in this file. Color sections have 
-comments within them to tell you when they are used, but all of the parameters are defined fully [below](#parameters).
+comments within them to tell you when they are used, but all of the parameters are defined fully [below](#tool-cfg-params).
 
-## Where is it
+## Where is it<a name="tool-cfg-where"></a>
   The tool configuration file is in the user's home directory (`~`), and it is a file called `.ava.ini`.  Moving this file will raise a warning, and all default values will be used.  If this happens, you 
 can create a new file at `~/.ava.ini` with the [repair tool](#repair-tool) flag.
 <br/><br/>
 If you want to know more about each parameter, see the entries [below](#parameters).  If not, continue on to the [next section](#project-configuration-files).
 
-## Parameters
+## Parameters<a name="tool-cfg-params"></a>
 These are the sections defined in the tool configuration file.  Each section has an explination of when its use and a summary of its associated variables.
 
-### header/footer [`color` ([bash color](#color)), `bold` (boolean)]
+#### header/footer [`color` ([bash color](#bash-colors)), `bold` (boolean)]<a name="tool-cfg-hf"></a>
 The color defined by `color` and bolded if `bold` evaluates to true is applied to the opening and closing statements of tools in the Ava command set.
 <br/><br/>
 
-### command [`color` ([bash color](#color)), `bold` (boolean)]
+#### command [`color` ([bash color](#bash-colors)), `bold` (boolean)]<a name="tool-cfg-cmd"></a>
 The color defined by `color` and bolded if `bold` evaluates to true is applied to output that informs the user of commands that are executed internally, like the `javac` and `java` commands.
 <br/><br/>
 
-### command output [`color` ([bash color](#color)), `bold` (boolean)]
+#### command output [`color` ([bash color](#bash-colors)), `bold` (boolean)]<a name="tool-cfg-cmd-out"></a>
 The color defined by `color` and bolded if `bold` evaluates to true is applied to normal output of commands, such as output created by the `java` command.
 <br/><br/>
 
-### warning [`color` ([bash color](#color)), `bold` (boolean)]
+#### warning [`color` ([bash color](#bash-colors)), `bold` (boolean)]<a name="tool-cfg-warn"></a>
 The color defined by `color` and bolded if `bold` evaluates to true is applied to important warnings that are generated.  These warnings can often be resolved easily, but cannot be reliably solved automatically, or require user confirmation.
 <br/><br/>
 
-### background Warning [`color` ([bash color](#color)), `bold` (boolean)]
+#### background Warning [`color` ([bash color](#bash-colors)), `bold` (boolean)]<a name="tool-cfg-bwarn"></a>
 The color defined by `color` and bolded if `bold` evaluates to true is applied to less important warnings or warnings that supplement full fledged warnings.  For example, missing variables in the tool configuration file generate background warnings, and these 
 background warnings culminate in a full warning that includes more general information.
 <br/><br/>
 
-### error [`color` ([bash color](#color)), `bold` (boolean)]
+#### error [`color` ([bash color](#bash-colors)), `bold` (boolean)]<a name="tool-cfg-err"></a>
 The color defined by `color` and bolded if `bold` evaluates to true is applied to fatal errors generated by compilation, runtime errors generated from the `java` command, and errors created from the tool itself.  For example, if a project configuration file does 
 not exist in the parent directories, a fatal error will be raised and highlighted in this color.
 <br/><br/>
 
-### affirmation [`color` ([bash color](#color)), `bold` (boolean)]
+#### affirmation [`color` ([bash color](#bash-colors)), `bold` (boolean)]<a name="tool-cfg-affirm"></a>
 The color defined by `color` and bolded if `bold` evaluates to true is applied to affirmation statements which ensure that the information recieved by the tool matches what the user intended.  These statements also bring attention to good things.  For example, 
 if compilation results in zero errors, it is celebrated with an affirmative statement.
 <br/><br/>
 
-### line header [`color` ([bash color](#color)), `bold` (boolean)]
+#### line header [`color` ([bash color](#bash-colors)), `bold` (boolean)]<a name="tool-cfg-lineh"></a>
 The color defined by `color` and bolded if `bold` evaluates to true is applied to the begining of each line which marks output with the script it's generated by.
 <br/><br/>
 
-### standard Output [`color` ([bash color](#color)), `bold` (boolean)]
+#### standard Output [`color` ([bash color](#bash-colors)), `bold` (boolean)]<a name="tool-cfg-stdout"></a>
 The color defined by `color` and bolded if `bold` evaluates to true is the default color used for output.  All output created by the tool that doesn't fall into some other category uses this color for output.
 <br/><br/>
 
-### log file name [`name` (string)]
+#### log file name [`name` (string)]<a name="tool-cfg-log-name"></a>
 The string defined by `name` is the name given to project log files, if the logging type specifies that project logs should be created.
 <br/><br/>
 
-### logging type [`project logging` (boolean), `individual logging` (boolean)]
+#### logging type [`project logging` (boolean), `individual logging` (boolean)]<a name="tool-cfg-log-type"></a>
 These variables define which logs are created and kept.<br/>
 If `project logging` evaluates to true, a single log file is created in the project home (defined in the project configuration file as [project home](#project-home)).<br/>
 If `individual logging` evaluates to true, a log file is created each time the project is compiled and run in the directory where you run from.<br/>
 You can set both of these to false to disable logging completely.
 <br/><br/>
 
-### project configuration file [`name` (string)]
+#### project configuration file [`name` (string)]<a name="tool-cfg-proj-cfg-name"></a>
 The string defined by `name` is the name of the [project configuration files](#project-configuration-files) used by the tool.  Project configuration files not with this name will be ignored.
 
 # Other
@@ -179,3 +181,9 @@ on a new line, and indented by a tab or spaces.
 ---
 
 If you've never used an ini configuration file before, you might want to checkout <a href="https://en.wikipedia.org/wiki/INI_file">this page</a> to learn more about their syntax.
+
+# Bash Colors
+These are colors with the `\033[xxm` thing.
+
+# Ini Files
+I don't know, go look it up.

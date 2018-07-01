@@ -1,137 +1,123 @@
-# Welcome #
+# Welcome
 Congrats, you have installed Ava.  I've set up a little dummy directory and this tutorial so you can get comfortable with the commands.
-1. [Tool configuration file](#tool-configuration-file)
-  1.1 [What is it](#what-is-it)
-    1.1.1 [Header/footer](#header-footer)
-    1.1.2 [Command](#command)
-    1.1.3 [Command output](#command-output)
-    1.1.4 [Warning](#warning)
-    1.1.5 [Background Warning](#background-warning)
-    1.1.6 [Error](#error)
-    1.1.7 [Affirmation](#affirmation)
-    1.1.8 [Line header](#line-header)
-    1.1.9 [Standard Output](#standard-output)
-    1.1.10 [Log file name](#log-file-name)
-    1.1.11 [Logging type](#logging-type)
-    1.1.12 [Project configuration file](#project-configuration-file)
-  1.2 [Where is it](#tool-configuration-file#where-is-it)
-2. [Project configuration files](#project-configuration-files)
-  2.1 [What are they](#project-configuration-files#what-are-they)
-  2.2 [What do they mean](#project-configuration-files#what-do-they-mean)
-3. [Commands](#commands)
 
-# Tool Configuration Files #
-## What is it ##
-The tool configuration file is an (ini)(#ini) file that defines the style and general configuration of the tool.  This file is populated with default values for [colors](#colors), 
-[logging options](#logging-options), and general parameters about (project configuration files)(#project-configuration-files).  By default, it looks like this (comments removed):
-```
-[header/footer]
-color = \033[95m
-bold = False
+# Table of contents
+&nbsp;1. [Tool configuration file](#tool-configuration-file)  
+&nbsp;&nbsp;&nbsp;1.1. [What is it](#what-is-it)  
+&nbsp;&nbsp;&nbsp;1.2. [Where is it](#tool-configuration-file#where-is-it)  
+&nbsp;&nbsp;&nbsp;1.3. [Parameters](#parameters)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.1. [header/footer](#headerfooter)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.2. [command](#command)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.3. [command output](#command-output)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.4. [warning](#warning)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.5. [background Warning](#background-warning)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.6. [error](#error)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.7. [affirmation](#affirmation)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.8. [line header](#line-header)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.9. [standard Output](#standard-output)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.10. [log file name](#log-file-name)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.11. [logging type](#logging-type)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.12. [project configuration file](#project-configuration-file)  
+&nbsp;2. [Project configuration files](#project-configuration-files)  
+&nbsp;&nbsp;&nbsp;2.1. [What are they](#what-are-they)  
+&nbsp;&nbsp;&nbsp;2.2. [What do they mean](#what-do-they-mean)  
+&nbsp;3. [Commands](#commands)
 
-[command]
-color = \033[94m
-bold = False
-
-[command output]
-color = \033[37m
-bold = False
-
-[warning]
-color = \033[93m
-bold = False
-
-[background warning]
-color = \033[33m
-bold = False
-
-[error]
-color = \033[91m
-bold = True
-
-[affirmation]
-color = \033[92m
-bold = False
-
-[line header]
-color = \033[97m
-bold = True
-
-[standard output]
-color = \033[97m
-bold = False
-
-[log file name]
-name = log.ava
-
-[logging type]
-project logging = True
-individual logging = False
-
-[project configuration file]
-name = config.ini
-```
+# Tool Configuration Files
+## What is it
+The tool configuration file is an (ini)(#ini) file that defines the style and general configuration of the tool.  This file is populated with default values for output [colors](#colors), 
+logging options, and general parameters about (project configuration files)(#project-configuration-files).  By default, it looks like [this](.ava.ini).<br/><br/>
 Parameters in the tool configuration file mostly control the style of the output of commands.  If you don't like the color of a set of outputs, you can easily redefine it in this file. Color sections have 
-comments within them to tell you when they are used, but all of the parameters are defined fully below.
+comments within them to tell you when they are used, but all of the parameters are defined fully [below](#parameters).
 
-### Header/footer ###
-###### Color ([bash color](#color)), bold (boolean) ######
-This color is applied to the opening and closing statements of tools in the Ava command set.
+## Where is it
+The tool configuration file is in the user's home directory (`~`), and it is a file called `.ava.ini`.  Moving this file will raise a warning, and all default values will be used.  If this happens, you 
+can create a new file at `~/.ava.ini` with the [repair tool](#repair-tool) flag.
 
-### Command ###
-###### Color ([bash color](#color)), bold (boolean) ######
-This color is applied to output that informs the user of commands that are executed internally, like the `javac` and `java` commands.
+---
 
-### Command output ###
-###### Color ([bash color](#color)), bold (boolean) ######
-This color is applied to normal output of commands, such as output created by the `java` command.
+If you want to know more about each parameter, see the entries [below](#parameters).  If not, continue on to the [next section](#project-configuration-files).
 
-### Warning ###
-###### Color ([bash color](#color)), bold (boolean) ######
-This color is applied to important warnings that are generated.  These warnings can often be resolved easily, but cannot be reliably solved automatically, or require user confirmation.
+## Parameters
+These are the sections defined in the tool configuration file.  Each section has an explination of when its use and a summary of its associated variables.
 
-### Background Warning ###
-###### Color ([bash color](#color)), bold (boolean) ######
-This color is applied to less important warnings or warnings that supplement full fledged warnings.  For example, missing variables in the tool configuration file generate background warnings, and these 
+### header/footer
+`color ([bash color](#color)), bold (boolean)`<br/>
+The color defined by `color` and bolded if `bold` evaluates to true is applied to the opening and closing statements of tools in the Ava command set.
+
+---
+
+### command
+`color ([bash color](#color)), bold (boolean)`<br/>
+The color defined by `color` and bolded if `bold` evaluates to true is applied to output that informs the user of commands that are executed internally, like the `javac` and `java` commands.
+
+---
+
+### command output
+`color ([bash color](#color)), bold (boolean)`<br/>
+The color defined by `color` and bolded if `bold` evaluates to true is applied to normal output of commands, such as output created by the `java` command.
+
+---
+
+### warning
+`color ([bash color](#color)), bold (boolean)`<br/>
+The color defined by `color` and bolded if `bold` evaluates to true is applied to important warnings that are generated.  These warnings can often be resolved easily, but cannot be reliably solved automatically, or require user confirmation.
+
+---
+
+### background Warning
+`color ([bash color](#color)), bold (boolean)`<br/>
+The color defined by `color` and bolded if `bold` evaluates to true is applied to less important warnings or warnings that supplement full fledged warnings.  For example, missing variables in the tool configuration file generate background warnings, and these 
 background warnings culminate in a full warning that includes more general information.
 
-### Error ###
-###### Color ([bash color](#color)), bold (boolean) ######
-This color is applied to fatal errors generated by compilation, runtime errors generated from the `java` command, and errors created from the tool itself.  For example, if a project configuration file does 
+---
+
+### error
+`color ([bash color](#color)), bold (boolean)`<br/>
+The color defined by `color` and bolded if `bold` evaluates to true is applied to fatal errors generated by compilation, runtime errors generated from the `java` command, and errors created from the tool itself.  For example, if a project configuration file does 
 not exist in the parent directories, a fatal error will be raised and highlighted in this color.
 
-### Affirmation ###
-###### Color ([bash color](#color)), bold (boolean) ######
-This color is applied to affirmation statements which ensure that the information recieved by the tool matches what the user intended.  These statements also bring attention to good things.  For example, 
+---
+
+### affirmation
+`color ([bash color](#color)), bold (boolean)`<br/>
+The color defined by `color` and bolded if `bold` evaluates to true is applied to affirmation statements which ensure that the information recieved by the tool matches what the user intended.  These statements also bring attention to good things.  For example, 
 if compilation results in zero errors, it is celebrated with an affirmative statement.
 
-### Line header ###
-###### Color ([bash color](#color)), bold (boolean) ######
-This color is applied to the begining of each line which marks output with the script it's generated by.
+---
 
-### Standard Output ###
-###### Color ([bash color](#color)), bold (boolean) ######
-This color is the default color used for output.  All output created by the tool that doesn't fall into some other category uses this color for output.
+### line header
+`color ([bash color](#color)), bold (boolean)`<br/>
+The color defined by `color` and bolded if `bold` evaluates to true is applied to the begining of each line which marks output with the script it's generated by.
 
-### Log file name ###
-###### Name (string) ######
-This is the name given to project log files, if the logging type specifies that project logs should be created.
+---
 
-### Logging type ###
-###### Project logging (boolean), individual logging (boolean) ######
-These two booleans define how logging is done.<br/>
-If project logging is true, a single log file is created in the project home (defined in the project configuration file as [project home](#project-configuration-files#what-is-it#project-home)).<br/>
-If individual logging is true, a log file is created each time the project is compiled and run in the directory where you run from.<br/>
+### standard Output
+`color ([bash color](#color)), bold (boolean)`<br/>
+The color defined by `color` and bolded if `bold` evaluates to true is the default color used for output.  All output created by the tool that doesn't fall into some other category uses this color for output.
+
+---
+
+### log file name
+`name (string)`<br/>
+The string defined by `name` is the name given to project log files, if the logging type specifies that project logs should be created.
+
+---
+
+### logging type
+`project logging (boolean), individual logging (boolean)`<br/>
+These variables define which logs are created and kept.<br/>
+If `project logging` evaluates to true, a single log file is created in the project home (defined in the project configuration file as [project home](#project-home)).<br/>
+If `individual logging` evaluates to true, a log file is created each time the project is compiled and run in the directory where you run from.<br/>
 You can set both of these to false to disable logging completely.
 
-### Project configuration file ###
-###### Name (string) ######
-This is the name of the [project configuration files](#project-configuration-files) used by the tool.  Project configuration files not with this name will be ignored.
+---
 
-# Where is it #
-The tool configuration file is found in your home directory with the name `.ava.ini`.  Try [this command](#commands#edit--the-tool-configuration-file) to edit this file from anywhere.
+### project configuration file
+`name (string)`<br/>
+The string defined by `name` is the name of the [project configuration files](#project-configuration-files) used by the tool.  Project configuration files not with this name will be ignored.
 
-
+# Other
 ```bash
 ava -m
 ```
@@ -149,7 +135,9 @@ configuration files without loosing track of where you are in your project.<br/>
 # Project Configuration Files #
 Ava uses ini configuration files so you only have to enter your project's information once, not every time you compile and run.  Lets take a look at the default configuration file, and what each part 
 means.
+
 ---
+
 This is the default `config.ini` file thats created when you use the command `ava -m`:
 ```
 [project]
@@ -175,27 +163,43 @@ runnable file = com.root.Main
 compile files = @/src/com/root/Main.java
 	@/src/com/root/utils/Utils.java
 ```
-## What is it ##
+## What is it
 This file has some helpful comments for when you forget what something does, but lets take a moment to understand each piece.
+
 ---
+
 The `[project]` at the begining is just a requirement of the ini file structure, and its like the root element of an xml document.  You won't need to change this ever, but you need it to be at the top.
+
 ---
+
 The `project name` variable makes it easier to keep track of your different projects, so we can set this variable to `Tutorial`.  The project name can be as long or short as you want, 
 but it cant have any \n charicters.
+
 ---
+
 The `poject home` variable is very important.  This is the location where log files will be kept if you choose to have them, and it is where project relative paths will be defined from.  This variable is 
 represented by the symbol `@` in the rest of the configuration file, and it can be used in paths.  The `@` symbol makes your project highly portable, as it can be redefined when a project moves, and then 
 every other path will be recalculated relative to it, even if your configuration file moves as well.
+
 ---
+
 The `class path` variable is where external libraries are defined.  If you have a `lib` folder in your project, you might want to use wildcards (`*`) to include all of the files in that folder in your class 
 path.  All external libraries **must** be defined here, and they must be on new lines and indented by either spaces or a tab.
+
 ---
+
 The `compiled destination` variable is where files are exported to after they have been compiled.  This is often a bin directory in your project home, which is why it is defined by default as `@/bin`.  And if 
 you forget to make the bin folder before you run it, don't worry; Ava can handle the logistics for you.
+
 ---
+
 The `runnable file` variable defines the main file which you would normally run.  This is where the Java program begins, and it contains the `static main(String[] args)` function.
+
 ---
+
 The `compile files` variable lists all of the `.java` files.  Whenever you create a new file, remember to edit the project configuration file to reflect this change, or it won't be compiled.  Each new file is 
 on a new line, and indented by a tab or spaces.
+
 ---
+
 If you've never used an ini configuration file before, you might want to checkout <a href="https://en.wikipedia.org/wiki/INI_file">this page</a> to learn more about their syntax.

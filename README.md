@@ -4,6 +4,9 @@ uses .ini files for configuration, making them far more human readable and easil
 is a big step towards mass use as you don't need to write the skeleton of a configuration file yourself.  Eventually, I want the make project configuration method to create more than just the basic structure 
 of a config file by searching the child directories to find libraries, files to be compiled, and the runnable class.
 
+## How? What? Huh?
+Yeah, same.  Check out the [refrence](refrence), maybe it will help?  It has some aspects of a tutorial, but I am working on a full tutorial.
+
 ## Dependencies ##
 Before downloading and building this tool, some dependencies need to be installed.<br/>
 <br/>

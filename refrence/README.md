@@ -37,8 +37,8 @@ Congrats, you have installed Ava.  Welcome to this refrence page with a little b
 &nbsp;&nbsp;&nbsp;3.5 [Silent](#cmd-silent)  
 &nbsp;&nbsp;&nbsp;3.6 [Repair tool](#cmd-repair-tool)  
 &nbsp;&nbsp;&nbsp;3.7 [Update](#cmd-update)  
-&nbsp;4. [Ini Files](#ini-files)  
-&nbsp;5. [Bash Colors](#bash-colors)
+&nbsp;4. [Bash Colors](#bash-colors)
+&nbsp;5. [Ini Files](#ini-files)  
 
 # <a name="tool-cfg"></a>The Tool Configuration File
 
@@ -192,32 +192,32 @@ on a new line, and indented by a tab or spaces.
 # Commands
 ## <a name="cmd-make"></a>Make (m)
 Makes a [project configuration file](#proj-cfg) populated with [defaults](#config.ini) in the current directory.<br/>
-** FUTURE: ** Add `[path]` argument to create in any directory.
+**FUTURE:** Add `[path]` argument to create in any directory.
 
 ## <a name="cmd-edit"></a>Edit (e)
 Edit into the nearest [project configuration file](#proj-cfg) in the parent directories.<br/>
 This will use the default text editor defined in the environment variable $EDITOR, or it defaults to `nano` if one is not defined.<br/>
-** FUTURE: ** Add `[parameter: value]*` argument to automatically set the value of `parameter` to `value` in that configuration file.
+**FUTURE:** Add `[parameter: value]*` argument to automatically set the value of `parameter` to `value` in that configuration file.
 
 ## <a name="cmd-verbose"></a>Verbose (v)
 Set the output level to verbose, just print a **bunch** of useless stuff.<br/>
-** FUTURE: ** What? Nothing.
+**FUTURE:** What? Nothing.
 
 ## <a name="cmd-quiet"></a>Quiet (q)
 Suppress some of the output to remove some peace-of-mind output.<br/>
-** FUTURE: ** I don't know, make other things quite?
+**FUTURE:** I don't know, make other things quite?
 
 ## <a name="cmd-silent"></a>Silent (s)
 Suppress all output except headers, footers, errors, and `java` output.<br/>
-** FUTURE: ** What would I even change?
+**FUTURE:** What would I even change?
 
 ## <a name="cmd-repair-tool"></a>Repair Tool (r)
 Repairs the tool configuration file at `~/.ava.ini` by filling in missing sections and parameters with defaults, or maybe creating a whole new file.<br/>
-** FUTURE: ** I guess it could look for the file if its missings.
+**FUTURE:** I guess it could look for the file if its missings.
 
 ## <a name="cmd-update"></a>Update (u)
 Yeah, not going to lie, this straight up does not work right now.<br/>
-** FUTURE: ** Make it work!
+**FUTURE:** Make it work!
 
 # Bash Colors
 This is a specific way of defining colors to be printed in x enabled terminal environments.  

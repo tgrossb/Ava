@@ -8,8 +8,8 @@ import pip
 from contextlib import redirect_stdout
 import io
 
-tmpLoc = tempfile.mkdtemp(dir=".")
-zippedLoc = tempfile.mkdtemp(suffix=".zip", dir=".")
+tmpLoc = tempfile.mkdtemp()
+zippedLoc = tempfile.mkdtemp(suffix=".zip")
 minPythonVersion = (3, 6)
 
 
@@ -29,12 +29,15 @@ def exit(code):
 	if code == 0:
 		utils.out(utils.LINE_H, "build: ", utils.AFFIRM, "Ava has been built successfully")
 		sys.exit(0)
+	if code == 1:
+		utils.out(utils.LINE_H, "build: ", utils.WARN, "The build script exited due to user input with code 1")
+		sys.exit(1)
 	utils.out(utils.LINE_H, "build: ", utils.ERR, "The build script encountered a fatal error and exited with error code " + str(code))
-	utils.out(utils.LINE_H, "build: ", utils.ERR, "Use the command ", utils.CMD, "./build.py -e " + str(code), utils.ERR, " to find out more")
+	utils.out(utils.LINE_H, "build: ", utils.ERR, "Use the command ", utils.CMD, "python3 build.py -e " + str(code), utils.ERR, " to find out more")
 	sys.exit(code)
 
 
-def executeChecked(cmd, stdout=None, stdin=None, out=True, cwd=None, errorCode=None):
+def executeChecked(cmd, cmdName, stdout=None, stdin=None, out=True, cwd=None, errorCode=None, alterOut=None):
 	if isinstance(cmd, tuple):
 		errorCode = cmd[1]
 		cmd = cmd[0]
@@ -47,14 +50,8 @@ def executeChecked(cmd, stdout=None, stdin=None, out=True, cwd=None, errorCode=N
 		utils.out(utils.LINE_H, "build: ", utils.PROG_ERR, "Error code is None in executeChecked")
 		exit(-1)
 
-	popen = execute(cmd, stdout=stdout, stderr=subprocess.PIPE, stdin=stdin, out=out, cwd=cwd, shell=True)
+	popen = execute(cmd, stdout=stdout, stderr=subprocess.PIPE, stdin=stdin, out=out, cwd=cwd, shell=True, alterOut=alterOut)
 	if not popen.returncode == 0:
-		fs = cmd.index(" ")
-		cmdName = cmd[:fs]
-		cmd = cmd[fs+1:]
-		if cmdName == "sudo":
-			# Go to the next space
-			cmdName = cmd[:cmd.index(" ")]
 		utils.out(utils.LINE_H, "build: ", utils.CMD, cmdName.capitalize(), utils.ERR, " finished with non-zero exit code (" + str(popen.returncode) + ") and message:")
 		for line in popen.stderr:
 			utils.out(utils.LINE_H, "build: " + cmdName + ": ", utils.ERR, line.decode("utf-8"), end="")
@@ -62,7 +59,7 @@ def executeChecked(cmd, stdout=None, stdin=None, out=True, cwd=None, errorCode=N
 	return popen
 
 
-def execute(cmd, stdout=None, stderr=None, stdin=None, shell=False, out=True, cwd=None):
+def execute(cmd, stdout=None, stderr=None, stdin=None, shell=False, out=True, cwd=None, alterOut=None):
 	if isinstance(cmd, list):
 		readableCmd = " ".join(cmd)
 	elif isinstance(cmd, str):
@@ -74,7 +71,7 @@ def execute(cmd, stdout=None, stderr=None, stdin=None, shell=False, out=True, cw
 	if shell:
 		cmd = readableCmd
 	if out:
-		utils.out(utils.LINE_H, "build: ", utils.CMD, readableCmd)
+		utils.out(utils.LINE_H, "build: ", utils.CMD, readableCmd, (alterOut if not alterOut == None else utils.CMD))
 	popen = subprocess.Popen(cmd, stdout=stdout, stderr=stderr, stdin=stdin, shell=shell, cwd=cwd)
 	popen.wait()
 	return popen
@@ -99,7 +96,7 @@ def installDependencies():
 
 	f = io.StringIO()
 	with redirect_stdout(f):
-		pip.main(['install', 'configparser'])
+		pip.main(['install', '--user', 'configparser==3.5.0'])
 	for line in f.getvalue().split("\n"):
 		if not line == "":
 			utils.out(utils.LINE_H, "build: pip: ", utils.OUT, line)
@@ -108,10 +105,14 @@ def build(args):
 	if not args.file:
 		utils.out(utils.LINE_H, "build: ", utils.STD_OUT, "Using default value 'ava' for output file")
 		args.file = "ava"
+	else:
+		args.file = os.path.normpath(args.file)
+
 	if args.integrate:
 		utils.out(utils.LINE_H, "build: ", utils.AFFIRM, "Integrating Ava with your system")
-		args.file = os.path.join("/usr/local/bin", os.path.basename(args.file))
-		checkForSudo()
+		endLoc = os.path.join("/usr/local/bin/", os.path.basename(args.file))
+		args.file = tempfile.mktemp()
+		checkForOverwrite(endLoc, args.overwrite, sudo=True)
 
 	checkForOverwrite(args.file, args.overwrite)
 
@@ -122,21 +123,30 @@ def build(args):
 	zip(zippedLoc, tmpLoc)
 	addShebang(zippedLoc, args.file)
 	makeExecutable(args.file)
+	if args.integrate:
+		move(args.file, endLoc)
 
 
 def checkForSudo():
-	if not os.getuid() == 0:
-		utils.out(utils.LINE_H, "build: ", utils.ERR, "Run with root privileges to integrate Ava with your system")
-		exit(2)
+	if os.getuid() == 0:
+		utils.out(utils.LINE_H, "build: ", utils.WARN, "Running with root privileges will run pip with root privileges, which is not recommended and may result in inexpected behavior.")
+		cont = utils.booleanQuery(utils.LINE_H, "build: ", utils.WARN, "Only continue if you only want to run ava with root.  Would you like to continue?", default=False)
+		if cont:
+			utils.out(utils.LINE_H, "build: ", utils.WARN, "Okay, but don't tell me I didn't warn you")
+		else:
+			exit(1)
+#	if not os.getuid() == 0:
+#		utils.out(utils.LINE_H, "build: ", utils.ERR, "Run with root privileges to integrate Ava with your system")
+#		exit(2)
 
 
-def checkForOverwrite(out, canOverwrite):
+def checkForOverwrite(out, canOverwrite, sudo=False):
 	if os.path.exists(out):
 		if canOverwrite:
 			write = utils.booleanQuery(utils.LINE_H, "build: ", utils.BWARN, "File '" + out + "' will be written over. Would you like to continue?", default=False)
 			if write:
 				utils.out(utils.LINE_H, "build: ", utils.AFFIRM, "Removing '" + out + "'")
-				cleanUp(out)
+				cleanUp(out, sudo=sudo)
 			else:
 				exit(1)
 		else:
@@ -148,7 +158,7 @@ def checkForOverwrite(out, canOverwrite):
 def gatherPythonFiles(tmp):
 	CP = ("cp *.py " + tmp, 5)
 	utils.out(utils.LINE_H, "build: ", utils.STD_OUT, "Gathering python files into the temporary directory")
-	executeChecked(CP)
+	executeChecked(CP, "cp")
 
 
 def createMain(tmp):
@@ -166,11 +176,11 @@ def createMain(tmp):
 
 def zip(zipLoc, tmp):
 	ZIP = ("zip -r " + zipLoc + " *", 6)
-	MV_ZIP = ("mv " + zipLoc + " " + os.pardir, 7)
+#	MV_ZIP = ("mv " + zipLoc + " " + os.curdir, 7)
 
 	utils.out(utils.LINE_H, "build: ", utils.STD_OUT, "Zipping python files")
-	executeChecked(ZIP, stdout=subprocess.PIPE, cwd=tmp)
-	executeChecked(MV_ZIP, cwd=tmp)
+	executeChecked(ZIP, "zip", stdout=subprocess.PIPE, cwd=tmp)
+#	executeChecked(MV_ZIP, "mv", cwd=tmp)
 
 
 def addShebang(zip, out):
@@ -178,20 +188,26 @@ def addShebang(zip, out):
 	ECHO = ("echo '#!/usr/bin/env python" + version + "'", 8)
 	CAT = ("cat - " + zip + " > " + out, 9)
 	utils.out(utils.LINE_H, "build: ", utils.STD_OUT, "Adding shebang to the zip")
-	echod = executeChecked(ECHO, stdout=subprocess.PIPE)
-	executeChecked(CAT, stdin=echod.stdout)
+	echod = executeChecked(ECHO, "echo", stdout=subprocess.PIPE)
+	executeChecked(CAT, "cat", stdin=echod.stdout)
 
 
 def makeExecutable(out):
 	CHMOD = ("chmod +x " + out, 10)
 	utils.out(utils.LINE_H, "build: ", utils.STD_OUT, "Making '" + out + "' executable")
-	executeChecked(CHMOD)
+	executeChecked(CHMOD, "chmod")
 
 
-def cleanUp(*tmps, out=True):
+def move(file, loc):
+	MV = ("sudo mv " + file + " " + os.path.normpath(loc), 2)
+	utils.out(utils.LINE_H, "build: ", utils.STD_OUT, "Moving '" + file + "' to '" + loc + "'")
+	executeChecked(MV, "mv", alterOut=utils.BWARN)
+
+
+def cleanUp(*tmps, out=True, sudo=False):
 	for tmp in tmps:
 		if os.path.exists(tmp):
-			executeChecked("rm -rf " + tmp, out=out, errorCode=11)
+			executeChecked(("sudo " if sudo else "") + "rm -rf " + tmp, "rm", out=out, errorCode=11, alterOut=(utils.BWARN if sudo else None))
 
 
 def printErrors(codes):
@@ -206,6 +222,7 @@ def main():
 	utils.outputLevel = 0
 	args = parseArgs()
 	if not args.error:
+		checkForSudo()
 		installDependencies()
 		build(args)
 		exit(0)
@@ -216,7 +233,8 @@ errorMessages = {
 	-1: "This is a programming error, try submitting an issue at https://gitlab.com/tgrossb87/Ava/issues",
 	0: "Ava has been built successfully",
 	1: "User input terminated the program before the build process finished",
-	2: "A non-root user attempted to use the integrate flag",
+	2: "Could not move temporary file to /usr/local/bin",
+#	2: "A non-root user attempted to use the integrate flag",
 	3: "Attempted to write to already existing file without the overwrite flag",
 	4: "An environment error occurred while editing '__main__.py', more info in the command's output",
 	5: "Could not copy python files into temporary directory, more info in the command's output",
@@ -228,4 +246,8 @@ errorMessages = {
 	11: "Could not remove file, more info in the command's output",
 	12: "Python version out of date (< Python " + versionStr(minPythonVersion) + ")"
 }
-main()
+
+try:
+	main()
+except KeyboardInterrupt:
+	exit(1)

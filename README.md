@@ -2,6 +2,9 @@
 This is unpackaged source for the Ava Compiling and Executing tool, or ava for short.  This tool was created to simplify compiling and running Java programs from the command line.  It simplifies 
 compiling multiple files organized into packages and is able to export compiled files into seperate directories.  Feel free to download and use or modify this tool for easy use.
 
+## How? What? Huh?
+Yeah, same.  Check out the [refrence](refrence), maybe it will help?  It has some aspects of a tutorial, but I am working on a full tutorial.
+
 ## Installing ##
 Installing this tool is fairly easy. All you need to do is [download the dependencies](#dependencies) and then follow the instructions in 
 the [Building](#building) section of the README. Eventually, I'll setup an even easier way to install and build.</br>
@@ -30,8 +33,9 @@ are here.<br/>
 ```bash
 git clone https://gitlab.com/tgrossb87/Ava.git
 cd Ava
-sudo python3 build.py -io
+python3 build.py -io
 ```
+**Note: You might need to enter the root password during the building process**  
 If the build script gives you an error saying that the minimum Python version was not met, try running the build script with the Python 3.6 or higher interpreter explicitly.<br/>
 This will use the `build` tool to download any Python dependencies, compile all of the Python files into a zipped folder, and export it as a 
 runnable to `/usr/local/bin/ava` so the command `ava` can be used from anywhere.<br/>

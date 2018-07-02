@@ -1,0 +1,1 @@
+pandoc README.md | lynx -stdin

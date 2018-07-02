@@ -18,24 +18,39 @@ Congrats, you have installed Ava.  I've set up a little dummy directory and this
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.10. [log file name](#tool-cfg-log-name)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.11. [logging type](#tool-cfg-log-type)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.12. [project configuration file](#tool-cfg-proj-cfg)  
-&nbsp;2. [Project Configuration Files](#project-configuration-files)  
-&nbsp;&nbsp;&nbsp;2.1. [What are they](#what-are-they)  
-&nbsp;&nbsp;&nbsp;2.2. [What do they mean](#what-do-they-mean)  
-&nbsp;3. [Commands](#commands)
-&nbsp;4. [Ini Files](#ini-files)
+&nbsp;2. [Project Configuration Files](#proj-cfg)  
+&nbsp;&nbsp;&nbsp;2.1. [What are they](#proj-cfg-what)  
+&nbsp;&nbsp;&nbsp;2.2. [Where are they](#proj-cfg-where)  
+&nbsp;&nbsp;&nbsp;2.3. [Parameters](#proj-cfg-params)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.3.1 [project](#proj-cfg-proj)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.3.2 [project name](#proj-cfg-proj-name)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.3.3 [project home](#proj-cfg-proj-home)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.3.4 [class path](#proj-cfg-class-path)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.3.5 [compiled destination](#proj-cfg-comp-dest)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.3.6 [runnable files](#proj-cfg-runnable)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.3.7 [compile files](#proj-cfg-comp-files)  
+&nbsp;3. [Commands](#commands)  
+&nbsp;&nbsp;&nbsp;3.1 [Make](#cmd-make)  
+&nbsp;&nbsp;&nbsp;3.2 [Edit](#cmd-edit)  
+&nbsp;&nbsp;&nbsp;3.3 [Verbose](#cmd-verbose)  
+&nbsp;&nbsp;&nbsp;3.4 [Quiet](#cmd-quiet)  
+&nbsp;&nbsp;&nbsp;3.5 [Silent](#cmd-silent)  
+&nbsp;&nbsp;&nbsp;3.6 [Repair tool](#cmd-repair-tool)  
+&nbsp;&nbsp;&nbsp;3.7 [Update](#cmd-update)  
+&nbsp;4. [Ini Files](#ini-files)  
 &nbsp;5. [Bash Colors](#bash-colors)
 
 # <a name="tool-cfg"></a>The Tool Configuration File
 
 ## <a name="tool-cfg-what"></a>What is it
-  The tool configuration file is an [ini file](#ini-files) that defines the style and general configuration of the tool.  This file is populated with default values for [output colors](#bash-colors), 
+The tool configuration file is an [ini file](#ini-files) that defines the style and general configuration of the tool.  This file is populated with default values for [output colors](#bash-colors), 
 logging options, and general parameters about [project configuration files](#project-configuration-files).  By default, it looks like [this](.ava.ini).<br/><br/>
-  Parameters in the tool configuration file mostly control the style of the output of commands.  If you don't like the color of a set of outputs, you can easily redefine it in this file. Color sections have 
+Parameters in the tool configuration file mostly control the style of the output of commands.  If you don't like the color of a set of outputs, you can easily redefine it in this file. Color sections have 
 comments within them to tell you when they are used, but all of the parameters are defined fully [below](#tool-cfg-params).
 
 ## <a name="tool-cfg-where"></a>Where is it
-  The tool configuration file is in the user's home directory (`~`), and it is a file called `.ava.ini`.  Moving this file will raise a warning, and all default values will be used.  If this happens, you 
-can create a new file at `~/.ava.ini` with the [repair tool](#repair-tool) flag.
+The tool configuration file is in the user's home directory (`~`), and it is a file called `.ava.ini`.  Moving this file will raise a warning, and all default values will be used.  If this happens, you 
+can create a new file at `~/.ava.ini` with the [repair tool](#cmd-repair-tool) flag.
 <br/><br/>
 If you want to know more about each parameter, see the entries [below](#parameters).  If not, continue on to the [next section](#project-configuration-files).
 
@@ -110,77 +125,113 @@ configuration files without loosing track of where you are in your project.<br/>
 <br/>
 
 
-# Project Configuration Files #
-Ava uses ini configuration files so you only have to enter your project's information once, not every time you compile and run.  Lets take a look at the default configuration file, and what each part 
-means.
+# <a name="proj-cfg"></a>Project Configuration Files
 
----
+## <a name="proj-cfg-what"></a>What is it
+Project configuration files store all of the essential information about the project it is made for.  These files store information about what files should be compiled and run, and where compiled 
+files should go to keep everything nice and organized.  This way, you only have to enter your project's information once, not every time you compile and run a project.<br/>
+<br/>
+Project configuration files can be made by hand, but it is easier to [make](#cmd-make) and [edit](#cmd-edit) them using tool commands.  The default configuration looks like [this](config.ini).<br/>
+<br/>
+This file has some helpful comments to help you remember what each piece does, but all of the parameters are fully defined [below](#proj-cfg-params).
 
-This is the default `config.ini` file thats created when you use the command `ava -m`:
+## <a name="proj-cfg-where"></a>Where is it
+Project configuration files are more flexible than [the tool configuration files](#tool-cfg-where).  These files can be anywhere you want, but the first configuration file found in the parent directories 
+of where the tool is run is used.  So, if you have a file structure like this:
 ```
-[project]
-# The name of this project
-project name = My Project
-	
-# The home director for the project, can be relative to this file or absolute
-# This variable can be refered to as '@' in the rest of the config file
-project home = .
-	
-# The paths to any external files (.jar) to be compiled, non jar files will be ignored
-# External files can be refrenced individually and put on individual lines or with wildcards
-class path = @/libs/*
-	@/libs/a-sweet-library.jar
-	
-# The destination for compiled (.class) files
-compiled destination = @/bin
-	
-# The main, runnable file that includes a main(String[] args) function
-runnable file = com.root.Main
-	
-# The paths to each file that needs to be compiled, in any order
-compile files = @/src/com/root/Main.java
-	@/src/com/root/utils/Utils.java
+/home/user
+  |-- config.ini (for Project A)
+  |-- myCode
+        |-- config.ini (for Project B)
+        |-- ProjectA
+        |     |-- src
+        |
+        |-- ProjectB
+              |-- src
 ```
-## What is it
-This file has some helpful comments for when you forget what something does, but lets take a moment to understand each piece.
+and you run `ava` from `/home/user/myCode/ProjectA/src`, the configuration file at `/home/user/myCode/config.ini` will be used instead of the configuration file at `/home/user/config.ini`.  For this reason, 
+it is recomended that your project configuration files be in the project's home directory.  In other words, the [project home](#proj-cfg-proj-home) variable should simply be `.`.<br/>
+So, this file structure should be updated to look like this:
+```
+/home/user
+  |-- myCode
+        |-- ProjectA
+        |     |-- config.ini (for Project A)
+        |     |-- src
+        |
+        |-- ProjectB
+              |-- config.ini (for Project B)
+              |-- src
+```
+**Note: A [warning](#tool-cfg-warn) will be generated if the project configuration file is not in the project's home directory**<br/><br/>
+Aside from the location, the file can be named almost anything you want.  See the [project configuration name](#tool-cfg-proj-cfg-name) parameter in the [tool configuration file](#tool-cfg) for more information.
 
----
+## <a name="proj-cfg-params"></a>Parameters
 
+#### <a name="proj-cfg-proj"></a>project
 The `[project]` at the begining is just a requirement of the ini file structure, and its like the root element of an xml document.  You won't need to change this ever, but you need it to be at the top.
+<br/><br/>
 
----
-
+#### <a name="proj-cfg-proj-name"></a>`project name` (string)
 The `project name` variable makes it easier to keep track of your different projects, so we can set this variable to `Tutorial`.  The project name can be as long or short as you want, 
 but it cant have any \n charicters.
+<br/><br/>
 
----
 
+#### <a name="proj-cfg-proj-home"></a>`project home` (path)
 The `poject home` variable is very important.  This is the location where log files will be kept if you choose to have them, and it is where project relative paths will be defined from.  This variable is 
 represented by the symbol `@` in the rest of the configuration file, and it can be used in paths.  The `@` symbol makes your project highly portable, as it can be redefined when a project moves, and then 
 every other path will be recalculated relative to it, even if your configuration file moves as well.
+<br/><br/>
 
----
 
+#### <a name="proj-cfg-class-path"></a>`class path` (path)
 The `class path` variable is where external libraries are defined.  If you have a `lib` folder in your project, you might want to use wildcards (`*`) to include all of the files in that folder in your class 
 path.  All external libraries **must** be defined here, and they must be on new lines and indented by either spaces or a tab.
+<br/><br/>
 
----
 
+#### <a name="proj-cfg-comp-dest"></a>`compiled destination` (path)
 The `compiled destination` variable is where files are exported to after they have been compiled.  This is often a bin directory in your project home, which is why it is defined by default as `@/bin`.  And if 
 you forget to make the bin folder before you run it, don't worry; Ava can handle the logistics for you.
+<br/><br/>
 
----
-
+#### <a name="proj-cfg-runnable"></a>`runnable file` (package)
 The `runnable file` variable defines the main file which you would normally run.  This is where the Java program begins, and it contains the `static main(String[] args)` function.
+<br/><br/>
 
----
-
+#### <a name="proj-cfg-comp-files"></a>`compile files` (list<path>)
 The `compile files` variable lists all of the `.java` files.  Whenever you create a new file, remember to edit the project configuration file to reflect this change, or it won't be compiled.  Each new file is 
 on a new line, and indented by a tab or spaces.
 
----
+# Commands
+## <a name="cmd-make"></a>Make (m)
+Makes a [project configuration file](#proj-cfg) populated with [defaults](#config.ini) in the current directory.<br/>
+**FUTURE:** Add `[path]` argument to create in any directory.
 
-If you've never used an ini configuration file before, you might want to checkout <a href="https://en.wikipedia.org/wiki/INI_file">this page</a> to learn more about their syntax.
+## <a name="cmd-edit"></a>Edit (e)
+Edit into the nearest [project configuration file](#proj-cfg) in the parent directories.<br/>
+**FUTURE:** Add `[parameter: value]*` argument to automatically set the value of `parameter` to `value` in that configuration file.
+
+## <a name="cmd-verbose"></a>Verbose (v)
+Set the output level to verbose, just print a **bunch** of useless stuff.<br/>
+**FUTURE:** What? Nothing.
+
+## <a name="cmd-quiet"></a>Quiet (q)
+Suppress some of the output to remove some peace-of-mind output.<br/>
+**FUTURE:** I don't know, make other things quite?
+
+## <a name="cmd-silent"></a>Silent (s)
+Suppress all output except headers, footers, errors, and `java` output.<br/>
+**FUTURE:** No, this is a done thing.
+
+## <a name="cmd-repair-tool"></a>Repair Tool (r)
+Repairs the tool configuration file at `~/.ava.ini` by filling in missing sections and parameters with defaults, or maybe creating a whole new file.<br/>
+**FUTURE:** I guess it could look for the file if its missings.
+
+## <a name="cmd-update"></a>Update (u)
+Yeah, not going to lie, this straight up does not work right now.<br/>
+**FUTURE:** Make it work!
 
 # Bash Colors
 These are colors with the `\033[xxm` thing.
